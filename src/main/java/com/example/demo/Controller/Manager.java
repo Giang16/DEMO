@@ -4,7 +4,10 @@ import com.example.demo.JPARepository.HoKhauRepository;
 import com.example.demo.JPARepository.NhanKhauRepository;
 import com.example.demo.Model.HoKhau;
 import com.example.demo.Model.NhanKhau;
+import jakarta.persistence.Transient;
+import jakarta.transaction.Transactional;
 import org.json.JSONObject;
+import org.springframework.aop.scope.ScopedProxyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -85,8 +88,8 @@ public class Manager {
         //Kiểm tra xem hộ khẩu cũ có tồn tại không
         HoKhau oldHoKhau = hoKhauRepository.findByMahokhau(mahokhaucu);
         if(oldHoKhau != null &&
-           oldHoKhau.getChuho().equals(chuhocu) &&
-           oldHoKhau.getDiachi().equals(diachicu)){
+                oldHoKhau.getChuho().equals(chuhocu) &&
+                oldHoKhau.getDiachi().equals(diachicu)){
             //Hộ khẩu tồn tại và đúng các thông tin còn lại
 
             //Lấy thông tin hộ khẩu mới từ user
@@ -96,8 +99,9 @@ public class Manager {
             String diachimoi = hokhaumoi.getString("diachi");
 
             //Kiểm tra hộ khẩu mới có tồn tại không
-            HoKhau newHoKhau = hoKhauRepository.findByMahokhau(mahokhaucu);
+            HoKhau newHoKhau = hoKhauRepository.findByMahokhau(mahokhaumoi);
             if(newHoKhau == null){
+
                 //Hộ khẩu mới không tồn tại, thêm vào dtb
                 newHoKhau = new HoKhau(mahokhaumoi, chuhomoi, diachimoi);
                 hoKhauRepository.save(newHoKhau);
@@ -106,17 +110,21 @@ public class Manager {
                 JSONObject nhankhau = requestObject.getJSONObject("nhankhau");
                 String cccd = nhankhau.getString("cccd");
 
+
                 //Kiểm tra nhân khẩu có maHoKhau trùng với maHoKhau của HoKhaucu
-                NhanKhau nhanKhaumoi = nhanKhauRepository.deleteByCccd(cccd);
+                NhanKhau nhanKhaumoi = nhanKhauRepository.findByCccd(cccd);
                 if(nhankhau != null && nhanKhaumoi.getMahokhau() != newHoKhau.getMahokhau()){
-                    return -1;//Không trùng thì trả -1
+                    //Xoá nhân khẩu từ hộ khẩu cữ và thêm vào hộ khẩu mới
+                    nhanKhaumoi.setMahokhau(mahokhaumoi);
+                    nhanKhauRepository.save(nhanKhaumoi);
+                    return 1; //Nếu set lại mahokhau thành công vào hokhaumoi trả về 1
                 }
-                //Xoá nhân khẩu từ hộ khẩu cữ và thêm vào hộ khẩu mới
-                nhanKhaumoi.setMahokhau(mahokhaumoi);
-                return 1; //Nếu set lại mahokhau thành công vào hokhaumoi trả về 1
+
+                return -1; //Nếu set lại mahokhau thành công vào hokhaumoi trả về 1
+
 
             }
-            return -1;//Đã tồn tại mahokhau muốn tạo
+            return -2;//Đã tồn tại mahokhau muốn tạo
 
         }
         return 0;//Hộ khẩu muốn tách không tồn tại
@@ -124,14 +132,14 @@ public class Manager {
 
 
 
-    @DeleteMapping("/deletenhankhau")
+    @RequestMapping("/deletenhankhau")
     public int deleteNhanKhau(@RequestBody NhanKhau nhankhau){
         String cccd = nhankhau.getCccd();
         String numberphone = nhankhau.getPhonenumber();
         String name = nhankhau.getName();
         String sex = nhankhau.getSex();
 
-        //Kiểm tra nếu đúng thông tin thì xoá trả về 1
+        //Kiểm tra nhân khẩu có tồn tại không
         NhanKhau newNhanKhau = nhanKhauRepository.findByCccd(cccd);
         if(newNhanKhau != null &&
            newNhanKhau.getPhonenumber().equals(numberphone) &&
@@ -140,9 +148,7 @@ public class Manager {
             nhanKhauRepository.deleteByCccd(cccd);
             return 1;
         }
-        else {
-            return 0;
-        }
+        return 0;
     }
 
     @DeleteMapping("/deletehokhau")
