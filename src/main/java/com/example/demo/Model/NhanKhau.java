@@ -25,11 +25,12 @@ public class NhanKhau {
     public NhanKhau() {
     }
 
-    public NhanKhau(String cccd, String phonenumber, String name, String sex) {
+    public NhanKhau(String cccd, String phonenumber, String name, String sex, Integer mahokhau) {
         this.cccd = cccd;
         this.phonenumber = phonenumber;
         this.name = name;
         this.sex = sex;
+        this.mahokhau = mahokhau;
     }
 
     public String getCccd() {

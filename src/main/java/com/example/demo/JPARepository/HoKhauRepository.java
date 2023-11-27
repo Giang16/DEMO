@@ -7,5 +7,5 @@ public interface HoKhauRepository extends JpaRepository<HoKhau, Integer> {
     HoKhau findByMahokhau(Integer mahokhau);
     HoKhau findByChuho(String chuho);
     HoKhau findByDiachi(String diachi);
-    HoKhau deleteByMahokhau(Integer mahokhau);
+    void deleteByMahokhau(Integer mahokhau);
 }

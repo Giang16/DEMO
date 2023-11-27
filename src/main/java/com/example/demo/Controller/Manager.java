@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigInteger;
 import java.util.List;
 
 @RestController
@@ -47,9 +48,7 @@ public class Manager {
             nhanKhauRepository.save(newNhanKhau);
             return 1;
         }
-        else{
-            return 0;
-        }
+        return 0;
     }
 
     @RequestMapping("/addhokhau")
@@ -69,9 +68,7 @@ public class Manager {
             hoKhauRepository.save(newhokhau);
             return 1;
         }
-        else{
-            return  0;
-        }
+        return  0;
     }
 
 
@@ -129,40 +126,96 @@ public class Manager {
         }
         return 0;//Hộ khẩu muốn tách không tồn tại
     }
+    //Lú: Trong bước tạo hộ khẩu mới nếu ta nhập tê chủ hộ là nhân khẩu không có trong dtb nó vẫn nhận (-> Khi nhập phải nhập nhân khẩu có trong hộ khẩu cũ)
 
 
-
-    @RequestMapping("/deletenhankhau")
-    public int deleteNhanKhau(@RequestBody NhanKhau nhankhau){
-        String cccd = nhankhau.getCccd();
-        String numberphone = nhankhau.getPhonenumber();
-        String name = nhankhau.getName();
-        String sex = nhankhau.getSex();
-
-        //Kiểm tra nhân khẩu có tồn tại không
-        NhanKhau newNhanKhau = nhanKhauRepository.findByCccd(cccd);
-        if(newNhanKhau != null &&
-           newNhanKhau.getPhonenumber().equals(numberphone) &&
-           newNhanKhau.getName().equals(name) &&
-           newNhanKhau.getSex().equals(sex)){
+    @Transactional
+    @DeleteMapping("/deletenhankhau")
+    public int deleteNhanKhau(@RequestBody NhanKhau nhanKhau){
+        String cccd = nhanKhau.getCccd();
+        String name = nhanKhau.getName();
+        String phonenumber = nhanKhau.getPhonenumber();
+        String sex = nhanKhau.getSex();
+        Integer mahokhau = nhanKhau.getMahokhau();
+        System.out.println("x");
+        //Kiểm tra nhân khẩu có ồn tại không
+        NhanKhau newnhankhau = nhanKhauRepository.findByCccd(cccd);
+        if(newnhankhau != null &&
+           newnhankhau.getName().equals(name) &&
+           newnhankhau.getPhonenumber().equals(phonenumber) &&
+           newnhankhau.getSex().equals(sex) &&
+           newnhankhau.getMahokhau().equals(mahokhau)){
+            //Tồn tại nhân khẩu
+            System.out.println("xx");
+            //Xoá nhân khẩu khỏi dtb
             nhanKhauRepository.deleteByCccd(cccd);
-            return 1;
+            return 1; // Đã xoá thành công
         }
         return 0;
     }
+    //Hơi lú: Hàm này khi mà xoá nhân khẩu là chủ hộ thì bên hộ khẩu chủ hộ vẫn l nó
+    //=> Cần thêm: khi xoá nhân khẩu cần kiểm tra đó có phải chủ hộ không
+    //              + Nếu không thì xoá bth
+    //              + Nếu có thì cần nhập chủ hộ mới (là người cùng hộ khẩu chut hộ cũ) xong mới xoá
+    @RequestMapping("/modify")
+    public int modily(@RequestBody JSONObject jsonString){
+        JSONObject requestObject = new JSONObject(jsonString);
 
-    @DeleteMapping("/deletehokhau")
-    public int deleteHoKhau(@RequestBody HoKhau hokhau){
-        Integer mahokhau = hokhau.getMahokhau();
-        String chuho = hokhau.getChuho();
-        String diachi = hokhau.getDiachi();
+        //Lấy thông tin nhân kẩu muốn edit từ user
+        JSONObject nhankhau = requestObject.getJSONObject("NhanKhau");
+        String cccd = nhankhau.getString("cccd");
 
-        //Kiểm tra thông tin nếu đúng thì xoá trả về 1
-        HoKhau newHoKhau = hoKhauRepository.findByMahokhau(mahokhau);
-        if(newHoKhau != null && newHoKhau.getChuho().equals(chuho) && newHoKhau.getDiachi().equals(diachi)){
-            hoKhauRepository.deleteByMahokhau(mahokhau);
-            return 1;
+        System.out.println("x");
+
+        //Kiểm tra cccd có tồn tại không
+        NhanKhau exsitNhanKhau = nhanKhauRepository.findByCccd(cccd);
+        if(exsitNhanKhau == null ){
+            return 0;//Không tồn tại cccd
         }
-        return 0;
+
+        System.out.println("xx");
+
+        //Lấy các Nhân Khẩu có cùng mahokhau của Nhân Khẩu trên trong dtb
+        List<NhanKhau> listNhanKhau = nhanKhauRepository.findByMahokhau(exsitNhanKhau.getMahokhau());
+
+        //Hiện listNhanKhau có cùng mahokhau
+        for(NhanKhau n : listNhanKhau){
+            System.out.println(n.getCccd());
+            System.out.println(n.getName());
+        }
+
+        System.out.println("xxx");
+        //Nhập cccd Nhân khẩu muốn thay đổi trong listNhanKhau
+        JSONObject nhanKhauMuonDoi = requestObject.getJSONObject("NhanKhauMuonDoi");
+        String cccdNhanKhauMuonDoi = nhanKhauMuonDoi.getString("cccd");
+
+        System.out.println("xxxx");
+        //Kiểm tra cccdNhanKhauMuonDoi có trong listNhanKhau
+        NhanKhau exitNhanKhau1 = nhanKhauRepository.findByCccd(cccdNhanKhauMuonDoi);
+        if(exitNhanKhau1 == null){
+            return -2;//Nhập sai
+        }
+
+        for(NhanKhau n : listNhanKhau){
+            if(exitNhanKhau1.equals(n)){
+                //cccdNhanKhauMuonDoi tồn tại trong list
+
+                //Nhập vào các trường muốn đổi từ User
+                JSONObject changeNhanKhau = requestObject.getJSONObject("ChangeNhanKhau");
+                String changename = changeNhanKhau.getString("name");
+                String changephonenumber = changeNhanKhau.getString("phonenumber");
+                String changesex = changeNhanKhau.getString("sex");
+                Integer changemahokhau = changeNhanKhau.getInt("mahokhau");
+
+                //set lại thông tin muốn đổi vào dtb
+                n.setName(changename);
+                n.setPhonenumber(changephonenumber);
+                n.setSex(changesex);
+                n.setMahokhau(changemahokhau);
+                nhanKhauRepository.save(n);
+                return 1;
+            }
+        }
+        return -1;//Không tồn tại Nhân khau muon đổi trong list
     }
 }
