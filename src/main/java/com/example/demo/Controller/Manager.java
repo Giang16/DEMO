@@ -158,7 +158,7 @@ public class Manager {
     //              + Nếu không thì xoá bth
     //              + Nếu có thì cần nhập chủ hộ mới (là người cùng hộ khẩu chut hộ cũ) xong mới xoá
     @RequestMapping("/modify")
-    public int modily(@RequestBody JSONObject jsonString){
+    public int modily(@RequestBody String jsonString){
         JSONObject requestObject = new JSONObject(jsonString);
 
         //Lấy thông tin nhân kẩu muốn edit từ user
@@ -178,7 +178,7 @@ public class Manager {
         //Lấy các Nhân Khẩu có cùng mahokhau của Nhân Khẩu trên trong dtb
         List<NhanKhau> listNhanKhau = nhanKhauRepository.findByMahokhau(exsitNhanKhau.getMahokhau());
 
-        //Hiện listNhanKhau có cùng mahokhau
+        //Hiện listNhanKhau có cùng mahokhau (làm sao để hiển thị ra màn hình thì chưa bt)
         for(NhanKhau n : listNhanKhau){
             System.out.println(n.getCccd());
             System.out.println(n.getName());
@@ -195,7 +195,7 @@ public class Manager {
         if(exitNhanKhau1 == null){
             return -2;//Nhập sai
         }
-
+        System.out.println("xxxxx");
         for(NhanKhau n : listNhanKhau){
             if(exitNhanKhau1.equals(n)){
                 //cccdNhanKhauMuonDoi tồn tại trong list
@@ -205,13 +205,12 @@ public class Manager {
                 String changename = changeNhanKhau.getString("name");
                 String changephonenumber = changeNhanKhau.getString("phonenumber");
                 String changesex = changeNhanKhau.getString("sex");
-                Integer changemahokhau = changeNhanKhau.getInt("mahokhau");
+
 
                 //set lại thông tin muốn đổi vào dtb
                 n.setName(changename);
                 n.setPhonenumber(changephonenumber);
                 n.setSex(changesex);
-                n.setMahokhau(changemahokhau);
                 nhanKhauRepository.save(n);
                 return 1;
             }
