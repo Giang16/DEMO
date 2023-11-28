@@ -16,24 +16,27 @@ public class ChangePass {
     @RequestMapping("/changepass")
     public int changePass(@RequestBody Account account){
         //Nhập username pass cddd
-        String usernaem = account.getUsername();
-        String pass = account.getPassword();
-        String cccd = account.getCccd();
+        String reqUsername = account.getUsername();
+        String reqPassword = account.getPassword();
+        String reqCCCD = account.getCccd();
 
         //Kiểm tra tk có trong table account
-        Account newAccount = accountRepository.findByUsername(usernaem);
-        if(newAccount != null && newAccount.getPassword().equals(pass) && newAccount.getCccd().equals(cccd)){
+        Account dbAccount = accountRepository.findByUsername(reqUsername);
+        if(dbAccount != null && dbAccount.getPassword().equals(reqPassword) && dbAccount.getCccd().equals(reqCCCD)){
             //Tồn tại tk và nhập mk mới để đổi
-            String newpass = account.getNewPassword();
-            String confirmnewpass = account.getConfirmPassword();
+            String newPassword = account.getNewPassword();
+            String confirmNewPassword = account.getConfirmPassword();
+
+            /*TODO: Việc nhập mật khẩu và xác nhận mật khẩu đúng hay sai sẽ do bên Dũng kiểm tra trước khi gửi request đến API
+            TODO: như vậy sẽ không có confirm password được gửi đến API này -> Lỗi -1 sẽ không có.
+             */
 
             //Nhập khớp thì thực hiện đổi mk in ra 1
-            if(newpass.equals(confirmnewpass)){
-                newAccount.setPassword(newpass);
-                accountRepository.save(newAccount);
+            if(newPassword.equals(confirmNewPassword)){
+                dbAccount.setPassword(newPassword);
+                accountRepository.save(dbAccount);
                 return 1;
-            }
-            else return -1; //Nhập không khớp mk mới
+            } else return -1; //Nhập không khớp mk mới
         }
         return 0; //Tk không tồn tại hoặc nhập sai
     }

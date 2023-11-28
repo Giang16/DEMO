@@ -20,6 +20,9 @@ public class Account {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "permission")
+    private String permission;
+
     @Transient
     private String newpassword;
 
@@ -44,6 +47,15 @@ public class Account {
     public void setId(Integer id) {
         this.id = id;
     }
+
+    public String getPermission() {
+        return permission;
+    }
+
+    public void setPermission(String permission) {
+        this.permission = permission;
+    }
+
     public String getCccd() {
         return cccd;
     }

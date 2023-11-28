@@ -24,22 +24,25 @@ public class TamVangTamTru {
     @Autowired
     private NhanKhauRepository nhanKhauRepository;
 
-    @RequestMapping("/tamtrutamvang")
+    @RequestMapping("/tamTruTamVang")
     public int TamTruTamVang(@RequestBody NhanKhau nhanKhau){
         //Lấy thông tin muốn kiểm tra tạm vắng từ user
-        String cccd = nhanKhau.getCccd();
+        String reqCCCD = nhanKhau.getCccd();
 
         //Kiểm tra nhân khẩu muốn kiểm tra tồn tại trong dtb khong
-        NhanKhau esxitNhanKhau = nhanKhauRepository.findByCccd(cccd);
-        if(esxitNhanKhau == null){
+        NhanKhau dbNhanKhau = nhanKhauRepository.findByCccd(reqCCCD);
+        if(dbNhanKhau == null){
             //Không tồn tại -> Tạm trú: thêm bản ghi vào table TamTru
-            TamTru tamtru = new TamTru(cccd, 1);
+
+            //TODO: Gud, cần thêm API để gỡ tạm trú
+            TamTru tamtru = new TamTru(reqCCCD, 1);
             tamTruRepository.save(tamtru);
             return 2;// Đăng ký tạm trú thành công
         }
 
         //Tồn tại -> Tạm vắng: thêm bản ghi vào table TamVang
-        TamVang tamvang = new TamVang(cccd,1);
+        //TODO: Gud, cần thêm API để gỡ tạm vắng
+        TamVang tamvang = new TamVang(reqCCCD,1);
         tamVangRepository.save(tamvang);
         return 1; //Đăng ký tạm vắng thành công
     }

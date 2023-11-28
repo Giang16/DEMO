@@ -49,11 +49,12 @@ public class Manager {
     }
 
     @RequestMapping("/addhokhau")
+    //TODO: Cần thêm các trường thông tin về địa chỉ cụ thể -> Sau đó sẽ làm các method để find theo địa chỉ, theo vùng
     public int addHoKhau(@RequestBody HoKhau hokhau){
         Integer mahokhau = hokhau.getMahokhau();
         String chuho = hokhau.getChuho();
         String diachi = hokhau.getDiachi();
-
+        //TODO: May be cần kiểm tra luôn chủ hộ đã có family chưa ? -> có family rồi mà tạo thêm hộ khẩu là toang đó
         //Kiểm tra mahokhau không có trong DL thì thêm vào DL
         if(hoKhauRepository.findByMahokhau(mahokhau) == null){
             HoKhau newhokhau = new HoKhau();
@@ -150,6 +151,8 @@ public class Manager {
         }
         return 0;
     }
+
+    //TODO: Hoàn thành các comment bên dưới
     //Hơi lú: Hàm này khi mà xoá nhân khẩu là chủ hộ thì bên hộ khẩu chủ hộ vẫn l nó
     //=> Cần thêm: khi xoá nhân khẩu cần kiểm tra đó có phải chủ hộ không
     //              + Nếu không thì xoá bth
