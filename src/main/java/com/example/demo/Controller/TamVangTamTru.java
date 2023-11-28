@@ -26,7 +26,7 @@ public class TamVangTamTru {
 
     @RequestMapping("/tamtrutamvang")
     public int TamTruTamVang(@RequestBody NhanKhau nhanKhau){
-        //Lấy thông tin muốn kiểm tra tạm vắng ừ user
+        //Lấy thông tin muốn kiểm tra tạm vắng từ user
         String cccd = nhanKhau.getCccd();
 
         //Kiểm tra nhân khẩu muốn kiểm tra tồn tại trong dtb khong
@@ -35,7 +35,7 @@ public class TamVangTamTru {
             //Không tồn tại -> Tạm trú: thêm bản ghi vào table TamTru
             TamTru tamtru = new TamTru(cccd, 1);
             tamTruRepository.save(tamtru);
-            return 0;// Đăng ký tạm trú thành công
+            return 2;// Đăng ký tạm trú thành công
         }
 
         //Tồn tại -> Tạm vắng: thêm bản ghi vào table TamVang

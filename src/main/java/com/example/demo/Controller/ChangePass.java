@@ -20,10 +20,10 @@ public class ChangePass {
         String pass = account.getPassword();
         String cccd = account.getCccd();
 
-        //Kiểm tra tk có trong CSDL thì cho đổi mk
+        //Kiểm tra tk có trong table account
         Account newAccount = accountRepository.findByUsername(usernaem);
         if(newAccount != null && newAccount.getPassword().equals(pass) && newAccount.getCccd().equals(cccd)){
-            //Nhập mk mới và nhap lai mk mới
+            //Tồn tại tk và nhập mk mới để đổi
             String newpass = account.getNewPassword();
             String confirmnewpass = account.getConfirmPassword();
 
@@ -35,6 +35,6 @@ public class ChangePass {
             }
             else return -1; //Nhập không khớp mk mới
         }
-        return 0; //Tk tồn tại hoặc thông tin không khớp
+        return 0; //Tk không tồn tại hoặc nhập sai
     }
 }

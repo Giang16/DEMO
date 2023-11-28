@@ -16,13 +16,14 @@ public class SignUp {
 
     @PostMapping("/signup")
     public int signUp(@RequestBody Account account) {
+        //Lấy thông tin đăng kí từ user
         String username = account.getUsername();
         String password = account.getPassword();
         String cccd = account.getCccd();
 
 
         if (accountRepository.findByUsername(username) != null || accountRepository.findByCccd(cccd) != null) {
-            return 0;
+            return 0; // Đã tồn tại username hoặc cccd (Đăng ký không thành công)
         }
 
         Account newAccount = new Account();
@@ -30,6 +31,6 @@ public class SignUp {
         newAccount.setPassword(password);
         newAccount.setCccd(cccd);
         accountRepository.save(newAccount);
-        return 1;
+        return 1; //Đăng ký thành công
     }
 }

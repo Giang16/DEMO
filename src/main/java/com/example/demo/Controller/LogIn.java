@@ -21,9 +21,9 @@ public class LogIn {
         Account newAccount = accountRepository.findByUsername(username);
 
         if (newAccount != null && newAccount.getPassword().equals(password)) {
-            return 1;
+            return 1;// Đăng nhập thành công
         }
-        return 0;
+        return 0; //Tài khoản không tồn tại hoặc nhập sai
     }
 
 }

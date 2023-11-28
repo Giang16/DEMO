@@ -4,17 +4,14 @@ import com.example.demo.JPARepository.HoKhauRepository;
 import com.example.demo.JPARepository.NhanKhauRepository;
 import com.example.demo.Model.HoKhau;
 import com.example.demo.Model.NhanKhau;
-import jakarta.persistence.Transient;
 import jakarta.transaction.Transactional;
 import org.json.JSONObject;
-import org.springframework.aop.scope.ScopedProxyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigInteger;
 import java.util.List;
 
 @RestController
@@ -34,9 +31,9 @@ public class Manager {
         String sex = nhankhau.getSex();
         Integer mahokhau = nhankhau.getMahokhau();
 
-        //Kiểm tra cccd v sđt trong CSDL nếu không trừng thì thêm vào CSDL
-        if (nhanKhauRepository.findByCccd(cccd) == null && nhanKhauRepository.findByName(name) == null) {
-            // Tạo một đối tượng mới NhanKhau để lưu vào CSDL
+        //Kiểm tra cccd table NhanKhau
+        if (nhanKhauRepository.findByCccd(cccd) == null) {
+            // không tồn tại trong table NhanKhau -> tại NhanKhau mới
             NhanKhau newNhanKhau = new NhanKhau();
             newNhanKhau.setCccd(cccd);
             newNhanKhau.setPhonenumber(numberphone);
@@ -66,9 +63,9 @@ public class Manager {
 
             //thêm vào DL
             hoKhauRepository.save(newhokhau);
-            return 1;
+            return 1; //Thêm thành công
         }
-        return  0;
+        return  0; // Đã tồn tại hộ khẩu
     }
 
 
@@ -117,7 +114,7 @@ public class Manager {
                     return 1; //Nếu set lại mahokhau thành công vào hokhaumoi trả về 1
                 }
 
-                return -1; //Nếu set lại mahokhau thành công vào hokhaumoi trả về 1
+                return -1; //Nhan khau muốn tach khog tồn tại
 
 
             }
@@ -212,7 +209,7 @@ public class Manager {
                 n.setPhonenumber(changephonenumber);
                 n.setSex(changesex);
                 nhanKhauRepository.save(n);
-                return 1;
+                return 1;// thay đổi thông tin nhân khẩu trong hộ khẩu thành công thông qua một thành viên trong nhân khẩu
             }
         }
         return -1;//Không tồn tại Nhân khau muon đổi trong list
