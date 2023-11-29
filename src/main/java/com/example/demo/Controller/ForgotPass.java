@@ -20,7 +20,7 @@ public class ForgotPass {
         String reqCCCD = account.getCccd();
 
         //TODO: Chỉ cần biết mỗi CCCD của user mà lấy được tài khoản thì hơi chuối -> Cần xác thực (Có thể là TOTP nếu mình implement được)
-        //Kiểm tra đúng usename và cccd trong CSDL thì trả về pass
+        //TODO: Kiểm tra đúng usename và cccd trong CSDL thì trả về pass
         Account newAccount = accountRepository.findByUsername(reqUsername);
         if(newAccount != null && newAccount.getCccd().equals(reqCCCD)){
             return newAccount.getPassword();

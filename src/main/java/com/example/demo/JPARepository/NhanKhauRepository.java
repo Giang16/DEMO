@@ -5,12 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface NhanKhauRepository extends JpaRepository<NhanKhau, String> {
+public interface NhanKhauRepository extends JpaRepository<NhanKhau, Integer> {
     NhanKhau findByCccd(String cccd);
-    NhanKhau findByPhonenumber(String phonenumber);
-    NhanKhau findByName(String name);
-    NhanKhau findBySex(String sex);
-    int deleteByCccd(String cccd);
-
-    List<NhanKhau> findByMahokhau(Integer mahokhau);
 }

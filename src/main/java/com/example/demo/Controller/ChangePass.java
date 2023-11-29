@@ -27,9 +27,9 @@ public class ChangePass {
             String newPassword = account.getNewPassword();
             String confirmNewPassword = account.getConfirmPassword();
 
-            /*TODO: Việc nhập mật khẩu và xác nhận mật khẩu đúng hay sai sẽ do bên Dũng kiểm tra trước khi gửi request đến API
-            TODO: như vậy sẽ không có confirm password được gửi đến API này -> Lỗi -1 sẽ không có.
-             */
+            //TODO: Việc nhập mật khẩu và xác nhận mật khẩu đúng hay sai sẽ do bên Dũng kiểm tra trước khi gửi request đến API
+            //TODO: như vậy sẽ không có confirm password được gửi đến API này -> Lỗi -1 sẽ không có.
+
 
             //Nhập khớp thì thực hiện đổi mk in ra 1
             if(newPassword.equals(confirmNewPassword)){
