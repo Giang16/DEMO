@@ -39,7 +39,7 @@ public class NhanKhau {
     public NhanKhau() {
     }
 
-    public NhanKhau(String hovatendem, String ten, String gioitinh, String ngaysinh, String quanhe, String cccd, String sodienthoai, Integer f_id){
+    public NhanKhau(String hovatendem, String ten, String gioitinh, String ngaysinh, String quanhe, String cccd, String sodienthoai, Integer fid){
         this.hovatendem = hovatendem;
         this.ten = ten;
         this.gioitinh = gioitinh;
@@ -115,7 +115,7 @@ public class NhanKhau {
         return fid;
     }
 
-    public void setFid(Integer f_id) {
-        this.fid = f_id;
+    public void setFid(Integer fid) {
+        this.fid = fid;
     }
 }

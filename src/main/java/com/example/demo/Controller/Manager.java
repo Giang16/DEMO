@@ -1,7 +1,9 @@
 package com.example.demo.Controller;
 
+import com.example.demo.JPARepository.DiaChiRepository;
 import com.example.demo.JPARepository.HoGiaDinhRepository;
 import com.example.demo.JPARepository.NhanKhauRepository;
+import com.example.demo.Model.DiaChi;
 import com.example.demo.Model.HoGiaDinh;
 import com.example.demo.Model.NhanKhau;
 import jakarta.transaction.Transactional;
@@ -23,21 +25,27 @@ public class Manager {
     @Autowired
     private HoGiaDinhRepository hoGiaDinhRepository;
 
+    @Autowired
+    private DiaChiRepository diaChiRepository;
+
     @RequestMapping("/addnhankhau")
-    public int addNhanKhau(@RequestBody String Stringjson) {
-        String hovatendem = nhankhau.getHovatendem();
-        String ten = nhankhau.getTen();
-        String gioitinh = nhankhau.getGioitinh();
-        String ngaysinh = nhankhau.getNgaysinh();
-        String quanhe = nhankhau.getQuanhe();
-        String cccd = nhankhau.getCccd();
-        String sodienthoai = nhankhau.getSodienthoai();
-        Integer fid = nhankhau.getFid();
+    public int addNhanKhau(@RequestBody String jsonString) {
+        JSONObject requestObject = new JSONObject(jsonString);
+
+        JSONObject nhankhau = requestObject.getJSONObject("NhanKhau");
+        String hovatendem = nhankhau.getString("hovatendem");
+        String ten = nhankhau.getString("ten");
+        String gioitinh = nhankhau.getString("gioitinh");
+        String ngaysinh = nhankhau.getString("ngaysinh");
+        String quanhe = nhankhau.getString("quanhe");
+        String cccd = nhankhau.getString("cccd");
+        String sodienthoai = nhankhau.getString("sodienthoai");
+        Integer fid = nhankhau.getInt("f_id");
 
         //Kiểm tra nhân khẩu tồn tại trong table NhanKhau
         if (nhanKhauRepository.findByCccd(cccd) == null) {
             // không tồn tại trong table NhanKhau -> tạo Nhân Khẩu mới
-            NhanKhau newNhanKhau = new NhanKhau(hovatendem, ten, gioitinh, ngaysinh, quanhe, cccd, sodienthoai, f_id);
+            NhanKhau newNhanKhau = new NhanKhau(hovatendem, ten, gioitinh, ngaysinh, quanhe, cccd, sodienthoai, fid);
 
             //Lưu vào CSDL
             nhanKhauRepository.save(newNhanKhau);
@@ -45,17 +53,36 @@ public class Manager {
             //Kiểm tra f_id có tồn tại trong table HoGiaDinh
             //-> Nếu tồn tại thì thôi
             //-> Không tồn tại thì tạo một
-            HoGiaDinh newHoGiaDinh = hoGiaDinhRepository.findByFid(fid);
-            if(newHoGiaDinh != null){
+            HoGiaDinh existingHoGiaDinh = hoGiaDinhRepository.findByFid(fid);
+            if(existingHoGiaDinh != null){
+                //Tồn tại trong table HoGiaDinh
                 return 1; // Thêm Nhân Khẩu thành công, không phải là chủ hộ
             }
+            //Không tồn tại trong table HoGiaDinh -> Cập nhập bản ghi <f_id, cccdchuho> bằng Nhân Khẩu mới tại
+            //-> Nhập thêm thông tin Địa chị
+            JSONObject diachi = requestObject.getJSONObject("DiaChi");
+            String sonha = diachi.getString("sonha");
+            String duong = diachi.getString("duong");
+            String phuong = diachi.getString("phuong");
+            String quan = diachi.getString("quan");
+            String thanhpho = diachi.getString("thanhPho");
 
-            HoGiaDinh newHoGiaDinh1 = new HoGiaDinh(fid,cccd);
-            hoGiaDinhRepository.save(newHoGiaDinh1);
+            //Kiểm tra địa chỉ có bị trùng trong table DiaChi
+            DiaChi existingDiaChi = diaChiRepository.findByAddidAndSonhaAndDuongAndPhuongAndQuanAndThanhpho(fid, sonha, duong, phuong, quan, thanhpho);
+            if (existingDiaChi != null && existingDiaChi.equals(diachi)) {
+                return -1; // Trùng địa chỉ trong table DiaChi (Đã kiểm tra nhân khẩu và có thể thêm)
+            }
+
+            DiaChi newDiaChi = new DiaChi(fid, sonha, duong, phuong, quan, thanhpho);
+            diaChiRepository.save(newDiaChi);
+
+            HoGiaDinh newHoGiaDinh = new HoGiaDinh(fid,cccd);
+            hoGiaDinhRepository.save(newHoGiaDinh);
+
             return 2; //Thêm Nhân Khẩu thành công, là chủ hộ
 
         }
-        return 0;
+        return 0; // Nhân khẩu đã tồn tại
     }
 
 //    @RequestMapping("/addhokhau")
@@ -78,7 +105,7 @@ public class Manager {
 //        }
 //        return 0; // Đã tồn tại hộ khẩu
 //    }
-}
+
 //
 //    @RequestMapping("/tachhokhau")
 //    public int tachHoKhau(@RequestBody String jsonString) {
@@ -227,4 +254,4 @@ public class Manager {
 //        }
 //        return -1;//Không tồn tại Nhân khau muon đổi trong list
 //    }
-//}
+}

@@ -6,9 +6,8 @@ import jakarta.persistence.*;
 @Table(name = "diachi")
 public class DiaChi {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "add_id")
-    private Integer add_id;
+    private Integer addid;
 
     @Column(name = "SoNha")
     private String sonha;
@@ -27,12 +26,21 @@ public class DiaChi {
 
     public DiaChi(){}
 
-    public DiaChi(String sonha, String duong, String phuong, String quan,  String thanhpho){
+    public DiaChi(Integer addid,String sonha, String duong, String phuong, String quan,  String thanhpho){
+        this.addid = addid;
         this.sonha = sonha;
         this.duong = duong;
         this.phuong = phuong;
         this.quan = quan;
         this.thanhpho = thanhpho;
+    }
+
+    public Integer getAddid() {
+        return addid;
+    }
+
+    public void setAddid(Integer addid) {
+        this.addid = addid;
     }
 
     public String getSonha() {
