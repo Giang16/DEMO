@@ -29,7 +29,6 @@ public class Manager {
         String numberphone = nhankhau.getPhonenumber();
         String name = nhankhau.getName();
         String sex = nhankhau.getSex();
-        Integer mahokhau = nhankhau.getMahokhau();
 
         //Kiểm tra cccd table NhanKhau
         if (nhanKhauRepository.findByCccd(cccd) == null) {
@@ -39,7 +38,6 @@ public class Manager {
             newNhanKhau.setPhonenumber(numberphone);
             newNhanKhau.setName(name);
             newNhanKhau.setSex(sex);
-            newNhanKhau.setMahokhau(mahokhau);
 
             //Lưu vào CSDL
             nhanKhauRepository.save(newNhanKhau);
