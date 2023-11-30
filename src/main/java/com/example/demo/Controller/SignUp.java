@@ -1,8 +1,7 @@
 package com.example.demo.Controller;
 
-import com.example.demo.JPARepository.AccountRepository;
-import com.example.demo.Model.Account;
-import org.json.JSONArray;
+import com.example.demo.JPARepository.TaiKhoanRepository;
+import com.example.demo.Model.TaiKhoan;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,41 +13,40 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class SignUp {
     @Autowired
-    private AccountRepository accountRepository;
-
+    private TaiKhoanRepository taiKhoanRepository;
     @PostMapping("/signup")
-    public String signUp(@RequestBody Account account) {
+    public String signUp(@RequestBody TaiKhoan taikhoan) {
         JSONObject response = new JSONObject();
+
         //Lấy thông tin đăng kí từ user
-        String reqUsername = account.getUsername();
-        String reqPassword = account.getPassword();
-        String reqCCCD = account.getCccd();
-        String reqPermission = account.getPermission();
+        String reqUsername = taikhoan.getUser();
+        String reqPassword = taikhoan.getHashkey();
+
+        Integer reqPermission = taikhoan.getLvadmin();
 
 
-        if (accountRepository.findByUsername(reqUsername) != null || accountRepository.findByCccd(reqCCCD) != null) {
+        if (taiKhoanRepository.findByUsername(reqUsername) != null ) {
             response.put("code","SIGNUP003");
             return response.toString();
-            //return 0; // Đã tồn tại username hoặc cccd (Đăng ký không thành công)
+            // Đã tồn tại username hoặc cccd (Đăng ký không thành công)
         }
         //TODO: Tạo code ở API này cho giống tài liệu cũ, giảm rework cho team FE.
         //Tạo tài khoản mới
-        Account newAccount = new Account();
-        newAccount.setUsername(reqUsername);
-        newAccount.setPassword(reqPassword);
-        newAccount.setCccd(reqCCCD);
-        newAccount.setPermission(reqPermission);
-        accountRepository.save(newAccount);
+        TaiKhoan newAccount = new TaiKhoan();
+        newAccount.setUser(reqUsername);
+        newAccount.setHashkey(reqPassword);
 
-        if(reqPermission.equals("admin")) {
+        taiKhoanRepository.save(newAccount);
+
+        if(reqPermission.equals(0)) {
             response.put("code","SIGNUP000");
-            //Đăng ký là admin
-        } else if (reqPermission.equals("user")) {
+            //Đăng ký là Tổ Trưởng
+        } else if (reqPermission.equals(1)) {
             response.put("code","SIGNUP001");
-            //Đăng nhập là user
+            //Đăng ký là Tổ Phó
         } else {
             response.put("code","SIGNUP002");
-            //Không admin hay user
+            //Là Ban quản lý
         }
         return response.toString();
     }

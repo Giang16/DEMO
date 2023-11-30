@@ -1,7 +1,6 @@
 package com.example.demo.Controller;
 
 import com.example.demo.JPARepository.AccountRepository;
-import com.example.demo.Model.Account;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
