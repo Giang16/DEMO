@@ -1,6 +1,7 @@
 package com.example.demo.Model;
 
 import jakarta.persistence.*;
+import org.json.JSONObject;
 
 @Entity
 @Table(name = "nhankhau")
@@ -31,6 +32,16 @@ public class NhanKhau {
         this.name = name;
         this.sex = sex;
         this.mahokhau = mahokhau;
+    }
+
+    public static String toJSONString(NhanKhau nhanKhau) {
+        JSONObject response = new JSONObject();
+        response.put("cccd",nhanKhau.getCccd());
+        response.put("phonenumber",nhanKhau.getPhonenumber());
+        response.put("name",nhanKhau.getName());
+        response.put("sex",nhanKhau.getSex());
+        response.put("magiadinh",nhanKhau.getMahokhau());
+        return response.toString();
     }
 
     public String getCccd() {
