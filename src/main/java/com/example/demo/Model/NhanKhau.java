@@ -25,6 +25,7 @@ public class NhanKhau {
 
     @Column(name = "Quanhe")
     private String quanhe;
+
     @Column(name = "Cccd")
     private String cccd;
 

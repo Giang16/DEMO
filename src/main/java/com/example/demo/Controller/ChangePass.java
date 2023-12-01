@@ -32,15 +32,9 @@ public class ChangePass {
         }
         else {
             response.put("code","CHANGEPASS002"); // Tồn tại tài khoản trong database
+            taiKhoanRepository.save(taikhoan);
             return response.toString();
         }
 
-            //TODO: Việc nhập mật khẩu và xác nhận mật khẩu đúng hay sai sẽ do bên Dũng kiểm tra trước khi gửi request đến API
-            //TODO: như vậy sẽ không có confirm password được gửi đến API này -> Lỗi -1 sẽ không có.
-
-
-
     }
-
-
 }

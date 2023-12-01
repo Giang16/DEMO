@@ -9,4 +9,8 @@ public interface NhanKhauRepository extends JpaRepository<NhanKhau, Integer> {
     NhanKhau findByCccd(String cccd);
     NhanKhau findByCccdAndFid(String cccd, Integer fid);
     NhanKhau findByFidAndCccdAndQuanhe(Integer fid, String cccd, String quanhe);
+
+    NhanKhau findBySodienthoai(String sodienthoai);
+
+
 }
