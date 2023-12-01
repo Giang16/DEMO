@@ -1,16 +1,18 @@
 package com.example.demo.Model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import org.springframework.data.relational.core.sql.In;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 @Entity
 @Table(name = "TaiKhoan")
-
 public class TaiKhoan {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "tk_id")
+    private Integer tkid;
     @Column(name = "User") private  String User;
     @Column(name = "Hashkey") private  String Hashkey;
     @Column(name = "lv_admin") private  Integer lvadmin;

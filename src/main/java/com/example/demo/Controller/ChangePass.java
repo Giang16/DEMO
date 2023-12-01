@@ -24,7 +24,7 @@ public class ChangePass {
         response.put("user",reqUsername);
         response.put("pass",reqPassword);
         //Kiểm tra tk có trong table account
-        TaiKhoan dbAccount = taiKhoanRepository.findByUsername(reqUsername);
+        TaiKhoan dbAccount = taiKhoanRepository.findByUser(reqUsername);
 
         if(dbAccount==null){
             response.put("code","CHANGEPASS001"); // Không tồn tại tài khoản trong database

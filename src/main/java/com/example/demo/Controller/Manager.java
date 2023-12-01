@@ -107,87 +107,85 @@ public class Manager {
 //    }
 
 //
-    @RequestMapping("/tachhokhau")
-    public int tachHoKhau(@RequestBody String jsonString) {
-        JSONObject requestObject = new JSONObject(jsonString);
-
-        //Lấy thông tin hộ khẩu cũ từ user
-        JSONObject hokhaucu = requestObject.getJSONObject("hokhaucu");
-        Integer mahokhaucu = hokhaucu.getInt("mahokhau");
-        String chuhocu = hokhaucu.getString("chuho");
-        String diachicu = hokhaucu.getString("diachi");
-
-        //Kiểm tra xem hộ khẩu cũ có tồn tại không
-        HoGiaDinh oldHoKhau = hoKhauRepository.findByMahokhau(mahokhaucu);
-        if(oldHoKhau != null &&
-                oldHoKhau.getChuho().equals(chuhocu) &&
-                oldHoKhau.getDiachi().equals(diachicu)){
-            //Hộ khẩu tồn tại và đúng các thông tin còn lại
-
-            //Lấy thông tin hộ khẩu mới từ user
-            JSONObject hokhaumoi = requestObject.getJSONObject("hokhaumoi");
-            Integer mahokhaumoi = hokhaumoi.getInt("mahokhau");
-            String chuhomoi = hokhaumoi.getString("chuho");
-            String diachimoi = hokhaumoi.getString("diachi");
-
-            //Kiểm tra hộ khẩu mới có tồn tại không
-            HoGiaDinh newHoKhau = hoKhauRepository.findByMahokhau(mahokhaumoi);
-            if(newHoKhau == null){
-
-                //Hộ khẩu mới không tồn tại, thêm vào dtb
-                newHoKhau = new HoGiaDinh(mahokhaumoi, chuhomoi, diachimoi);
-                hoKhauRepository.save(newHoKhau);
-
-                //Lấy thông tin cccd các Nhân Khẩu cần tách trong hộ khẩu cũ từ User
-                JSONObject nhankhau = requestObject.getJSONObject("nhankhau");
-                String cccd = nhankhau.getString("cccd");
-
-
-                //Kiểm tra nhân khẩu có maHoKhau trùng với maHoKhau của HoKhaucu
-                NhanKhau nhanKhaumoi = nhanKhauRepository.findByCccd(cccd);
-                if(nhankhau != null && nhanKhaumoi.getMahokhau() != newHoKhau.getMahokhau()){
-                    //Xoá nhân khẩu từ hộ khẩu cữ và thêm vào hộ khẩu mới
-                    nhanKhaumoi.setMahokhau(mahokhaumoi);
-                    nhanKhauRepository.save(nhanKhaumoi);
-                    return 1; //Nếu set lại mahokhau thành công vào hokhaumoi trả về 1
-                }
-
-                return -1; //Nhan khau muốn tach khog tồn tại
-
-
-            }
-            return -2;//Đã tồn tại mahokhau muốn tạo
-
-        }
-        return 0;//Hộ khẩu muốn tách không tồn tại
-    }
+//    @RequestMapping("/tachhokhau")
+//    public int tachHoKhau(@RequestBody String jsonString) {
+//        JSONObject requestObject = new JSONObject(jsonString);
+//
+//        //Lấy thông tin hộ khẩu cũ từ user
+//        JSONObject hokhaucu = requestObject.getJSONObject("hokhaucu");
+//        Integer mahokhaucu = hokhaucu.getInt("mahokhau");
+//        String chuhocu = hokhaucu.getString("chuho");
+//        String diachicu = hokhaucu.getString("diachi");
+//
+//        //Kiểm tra xem hộ khẩu cũ có tồn tại không
+//        HoGiaDinh oldHoKhau = hoKhauRepository.findByMahokhau(mahokhaucu);
+//        if(oldHoKhau != null &&
+//                oldHoKhau.getChuho().equals(chuhocu) &&
+//                oldHoKhau.getDiachi().equals(diachicu)){
+//            //Hộ khẩu tồn tại và đúng các thông tin còn lại
+//
+//            //Lấy thông tin hộ khẩu mới từ user
+//            JSONObject hokhaumoi = requestObject.getJSONObject("hokhaumoi");
+//            Integer mahokhaumoi = hokhaumoi.getInt("mahokhau");
+//            String chuhomoi = hokhaumoi.getString("chuho");
+//            String diachimoi = hokhaumoi.getString("diachi");
+//
+//            //Kiểm tra hộ khẩu mới có tồn tại không
+//            HoGiaDinh newHoKhau = hoKhauRepository.findByMahokhau(mahokhaumoi);
+//            if(newHoKhau == null){
+//
+//                //Hộ khẩu mới không tồn tại, thêm vào dtb
+//                newHoKhau = new HoGiaDinh(mahokhaumoi, chuhomoi, diachimoi);
+//                hoKhauRepository.save(newHoKhau);
+//
+//                //Lấy thông tin cccd các Nhân Khẩu cần tách trong hộ khẩu cũ từ User
+//                JSONObject nhankhau = requestObject.getJSONObject("nhankhau");
+//                String cccd = nhankhau.getString("cccd");
+//
+//
+//                //Kiểm tra nhân khẩu có maHoKhau trùng với maHoKhau của HoKhaucu
+//                NhanKhau nhanKhaumoi = nhanKhauRepository.findByCccd(cccd);
+//                if(nhankhau != null && nhanKhaumoi.getMahokhau() != newHoKhau.getMahokhau()){
+//                    //Xoá nhân khẩu từ hộ khẩu cữ và thêm vào hộ khẩu mới
+//                    nhanKhaumoi.setMahokhau(mahokhaumoi);
+//                    nhanKhauRepository.save(nhanKhaumoi);
+//                    return 1; //Nếu set lại mahokhau thành công vào hokhaumoi trả về 1
+//                }
+//
+//                return -1; //Nhan khau muốn tach khog tồn tại
+//
+//
+//            }
+//            return -2;//Đã tồn tại mahokhau muốn tạo
+//
+//        }
+//        return 0;//Hộ khẩu muốn tách không tồn tại
+//    }
 //    //Lú: Trong bước tạo hộ khẩu mới nếu ta nhập tê chủ hộ là nhân khẩu không có trong dtb nó vẫn nhận (-> Khi nhập phải nhập nhân khẩu có trong hộ khẩu cũ)
 //
 //
-//    @Transactional
-//    @DeleteMapping("/deletenhankhau")
-//    public int deleteNhanKhau(@RequestBody NhanKhau nhanKhau){
-//        String cccd = nhanKhau.getCccd();
-//        String name = nhanKhau.getName();
-//        String phonenumber = nhanKhau.getPhonenumber();
-//        String sex = nhanKhau.getSex();
-//        Integer mahokhau = nhanKhau.getMahokhau();
-//        System.out.println("x");
-//        //Kiểm tra nhân khẩu có ồn tại không
-//        NhanKhau newnhankhau = nhanKhauRepository.findByCccd(cccd);
-//        if(newnhankhau != null &&
-//           newnhankhau.getName().equals(name) &&
-//           newnhankhau.getPhonenumber().equals(phonenumber) &&
-//           newnhankhau.getSex().equals(sex) &&
-//           newnhankhau.getMahokhau().equals(mahokhau)){
-//            //Tồn tại nhân khẩu
-//            System.out.println("xx");
-//            //Xoá nhân khẩu khỏi dtb
-//            nhanKhauRepository.deleteByCccd(cccd);
-//            return 1; // Đã xoá thành công
-//        }
-//        return 0;
-//    }
+    @Transactional
+    @DeleteMapping("/deletenhankhau")
+    public int deleteNhanKhau(@RequestBody NhanKhau nhanKhau){
+        Integer fid = nhanKhau.getFid();
+        String cccd = nhanKhau.getCccd();
+
+        //Kiểm tra nhân khẩu có ồn tại không
+        NhanKhau existingNhanKhau = nhanKhauRepository.findByCccdAndFid(cccd, fid);
+        if(existingNhanKhau == null){
+            return 0; // Không tồn tại Nhân Khẩu
+        }
+        //Tồn tại
+
+        //Kiểm tra quanhe
+        // + quanhe != chuho thì xoá bth
+        // + quanhe == chuho thì trong HoGiaDinh phải chuyển thành vin khác làm chủ hộ
+
+        if(!existingNhanKhau.getQuanhe().equals("Chủ hộ"));{
+            //Quan hệ != Chủ hộ -> Xoa bình thường
+
+        }
+    }
 //
 //    //TODO: Hoàn thành các comment bên dưới
 //    //Hơi lú: Hàm này khi mà xoá nhân khẩu là chủ hộ thì bên hộ khẩu chủ hộ vẫn l nó
@@ -254,4 +252,66 @@ public class Manager {
 //        }
 //        return -1;//Không tồn tại Nhân khau muon đổi trong list
 //    }
+
+    @RequestMapping("/tachhokhau")
+    public int tachHoKhau(@RequestBody String jsonString){
+        JSONObject requestObject = new JSONObject(jsonString);
+
+        //Lấy thông tin hộ gia đình muốn tách từ User
+        JSONObject hogiadinh = requestObject.getJSONObject("HoGiaDinhMuonTach");
+        Integer fid = hogiadinh.getInt("f_id");
+        String cccdchuho = hogiadinh.getString("cccd_chuho");
+
+        //Kiểm tra hộ gia đình muốn tách tồn tại trong table HoGiaDinh không
+        HoGiaDinh existingHoGiaDinh = hoGiaDinhRepository.findByFid(fid);
+        if(existingHoGiaDinh == null){
+            //Không tồn tại
+            return 0; //Không tồn tạo HoGiaDinh muốn tách
+        }
+        //Tồn tại HoGiaDinh muốn tách
+
+        //Nhập thông tin HoGiaDinh mới muốn tạo từ việc tách
+        JSONObject newhogiadinh = requestObject.getJSONObject("HoGiaDinhMoi");
+        Integer newfid = newhogiadinh.getInt("f_id");
+        String newcccdchuho = newhogiadinh.getString("cccd_chuho");
+
+        //Nhập thông tin Diachi của HoGiaDinh mới
+        JSONObject diachi = requestObject.getJSONObject("DiaChi");
+        String sonha = diachi.getString("sonha");
+        String duong = diachi.getString("duong");
+        String phuong = diachi.getString("phuong");
+        String quan = diachi.getString("quan");
+        String thanhpho = diachi.getString("thanhpho");
+
+        //Kiểm tra HoGiaDinh mới tồn tại không và địa chỉ bị tủng không
+        HoGiaDinh newexistingHoGiaDinh = hoGiaDinhRepository.findByFid(newfid);
+        NhanKhau existingNhanKhau = nhanKhauRepository.findByCccd(newcccdchuho);
+        DiaChi existingDiaChi = diaChiRepository.findBySonhaAndDuongAndPhuongAndQuanAndThanhpho(sonha, duong, phuong, quan,thanhpho);
+        if(newexistingHoGiaDinh == null &&
+                existingNhanKhau != null &&
+                existingNhanKhau.getFid().equals(fid) &&
+                existingDiaChi == null){
+            /*Chưa tồn tại HoGiaDinh mới &&
+             tồn tại chủ hộ trong table NhanKhau &&
+             chủ hộ đó có f_id = f_id muốn tách &&
+             không trùng địa chỉ
+             */
+            HoGiaDinh newHoGiaDinh = new HoGiaDinh(newfid, newcccdchuho);
+            hoGiaDinhRepository.save(newHoGiaDinh);
+
+            //set lại f_id đối tượng chủ hộ muốn tách = newfid và lưu lại vào table NhanKhau
+            existingNhanKhau.setFid(newfid);
+            nhanKhauRepository.save(existingNhanKhau);
+
+            DiaChi newDiaChi = new DiaChi(newfid, sonha, duong, phuong, quan, thanhpho);
+            diaChiRepository.save(newDiaChi);
+
+            return 1; //Tách HoGiaDinh thành công
+        }
+        return -1; /* Tồn tại HoGiDinh muốn tách
+                nhưng (đã tồn tại HoGiaDinh mới(trùng f_id) ||
+                      thông tin chủ hộ mới không nằm trong HoGiaDinh cũ ||
+                      địa chủ HoGiaDinh mới bị tùng) */
+    }
+    //TODO: Cần cập nhập lại quan hệ chủ hộ mới là "Chủ hộ" sau khi tách thành công
 }

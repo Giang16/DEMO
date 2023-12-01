@@ -10,7 +10,10 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+@RestController
+@RequestMapping("/api")
 public class Test {
     @Autowired
     private NhanKhauRepository nhanKhauRepository;
@@ -20,57 +23,40 @@ public class Test {
 
     @Autowired
     private DiaChiRepository diaChiRepository;
-    @RequestMapping("/tachhokhau")
-    public int tachHoKhau(@RequestBody String jsonString){
+
+    @RequestMapping("/chuyennhankhau")
+    public int ChuyenNhanKhau(@RequestBody String jsonString){
         JSONObject requestObject = new JSONObject(jsonString);
 
-        //Lấy thông tin hộ gia đình muốn tách từ User
-        JSONObject hogiadinh = requestObject.getJSONObject("HoGiaDinhMuonTach");
+        //Lấy thông tin Nhân Khẩu từ HoGiaDinh nào muốn chuyển
+        JSONObject nhankhau = requestObject.getJSONObject("NhanKhau");
+        String cccd = nhankhau.getString("cccd");
+        Integer nkfid = nhankhau.getInt("f_id");
+        // Nhập quan hệ mới đối với chủ hộ mới
+        String quanhe = nhankhau.getString("quanhedoivoichuhomoi");
+
+        //Lấy thông tin HoGiaDinh muốn chuyển đến
+        JSONObject hogiadinh = requestObject.getJSONObject("HoGiaDinh");
         Integer fid = hogiadinh.getInt("f_id");
         String cccdchuho = hogiadinh.getString("cccd_chuho");
 
-        //Kiểm tra hộ gia đình muốn tách tồn tại trong table HoGiaDinh không
-        HoGiaDinh existingHoGiaDinh = hoGiaDinhRepository.findByFid(fid);
-        if(existingHoGiaDinh == null){
-            //Không tồn tại
-            return 0; //Không tồn tạo HoGiaDinh muốn tách
+
+        //Kiểm tra nhân khẩu muốn chuyển có tồn tại trong table NhanKhau không
+        NhanKhau existingNhanKhau = nhanKhauRepository.findByCccdAndFid(cccd, nkfid);
+        if(existingNhanKhau == null){
+            return 0; //Không tồn tại nhân khẩu muốn chuyển
         }
-        //Tồn tại HoGiaDinh muốn tách
-
-        //Nhập thông tin HoGiaDinh mới muốn tạo từ việc tách
-        JSONObject newhogiadinh = requestObject.getJSONObject("HoGiaDinhMoi");
-        Integer newfid = newhogiadinh.getInt("f_id");
-        String newcccdchuho = newhogiadinh.getString("cccd_chuho");
-
-        //Nhập thông tin Diachi của HoGiaDinh mới
-        JSONObject diachi = requestObject.getJSONObject("DiaChi");
-        String sonha = diachi.getString("sonha");
-        String duong = diachi.getString("duong");
-        String phuong = diachi.getString("phuong");
-        String quan = diachi.getString("quan");
-        String thanhpho = diachi.getString("thanhpho");
-
-        //Kiểm tra HoGiaDinh mới tồn tại không
-        //--> Không tồn tại: kiểm tra chủ hộ mới có trong table NhanKhau không và f_id có bằng
-
-        HoGiaDinh newexistingHoGiaDinh = hoGiaDinhRepository.findByFid(newfid);
-        NhanKhau existingNhanKhau = nhanKhauRepository.findByCccd(newcccdchuho);
-        if(newexistingHoGiaDinh == null && existingNhanKhau != null && existingNhanKhau.getFid().equals(fid)){
-            //Không tồn tại -> Tạo và set lại f_id trong NhanKhau của chủ hộ = newf_id
-            HoGiaDinh newHoGiaDinh = new HoGiaDinh(newfid, newcccdchuho);
-            hoGiaDinhRepository.save(newHoGiaDinh);
-
-
-
-
-            //Kiểm tra diachi có bị trùng không
-            DiaChi existingDiaChi = diaChiRepository.findBySonhaAndDuongAndPhuongAndQuanAndThanhpho(sonha, duong, phuong, quan,thanhpho);
-            if(existingDiaChi == null){
-                //Không ồn tại -> Tạo
-                DiaChi newDiaChi = new DiaChi(newfid, sonha, duong, phuong, quan, thanhpho);
-                diaChiRepository.save(newDiaChi);
-
-            }
+        //Tồn tại nhân khẩu muốn chuyển
+        // -> Thực hiện kiểm tra HoGiaDinh muốn chuyển đến tồn tại không
+        HoGiaDinh existingHoGiaDinh = hoGiaDinhRepository.findByFidAndCccdchuho(fid, cccdchuho);
+        if(existingHoGiaDinh == null && nkfid.equals(fid)){
+            return -1; // Không tồn tại hộ gia đình muốn chuyển đến hoặc nkfid = fid
         }
+
+        // Thực hiện chuyển NhanKhau qua HoGiaDinh muốn chuyển đến -> lưu lại
+        existingNhanKhau.setFid(fid);
+        existingNhanKhau.setQuanhe(quanhe);
+        nhanKhauRepository.save(existingNhanKhau);
+        return 1; //Chuyển Nhân khẩu thành công
     }
 }

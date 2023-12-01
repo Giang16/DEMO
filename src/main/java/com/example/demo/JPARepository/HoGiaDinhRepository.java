@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface HoGiaDinhRepository extends JpaRepository<HoGiaDinh, Integer> {
     HoGiaDinh findByCccdchuho(String cccdchuho);
     HoGiaDinh findByFid(Integer fid);
+    HoGiaDinh findByFidAndCccdchuho(Integer fid, String cccdchuho);
 }
