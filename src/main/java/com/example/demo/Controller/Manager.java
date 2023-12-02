@@ -237,7 +237,7 @@ public class Manager {
         return 2; //Xoá thành công nhân khẩu là chủ hộ (đã đổi chủ hộ cho thành viên trong gia đình)
     }
     //TODO: Thiếu trường hợp xoá nhân khẩu là chủ hộ mà không có thành viên trong gia đinh
-    //TODO: -> Khi xoá thì xoá cả HoGiaDinh và Diachi của nhân kẩu đó
+    //TODO: -> Khi xoá thì xoá cả HoGiaDinh và Diachi của nhân khẩu đó
 
 
     @RequestMapping("/modify")
