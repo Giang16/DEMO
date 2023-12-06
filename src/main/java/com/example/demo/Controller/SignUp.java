@@ -35,6 +35,7 @@ public class SignUp {
         TaiKhoan newAccount = new TaiKhoan();
         newAccount.setUser(reqUsername);
         newAccount.setHashkey(reqPassword);
+        newAccount.setLvadmin(reqPermission);
 
         taiKhoanRepository.save(newAccount);
 

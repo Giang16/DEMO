@@ -15,10 +15,11 @@ public class LogIn {
     private TaiKhoanRepository taiKhoanRepository;
 
     @RequestMapping("/login")
-    public String logIn(@RequestBody TaiKhoan account){
+    public String logIn(@RequestBody String requestBody){
         JSONObject response = new JSONObject();
-        String reqUsername = account.getUser();
-        String reqPassword = account.getHashkey();
+        JSONObject requestBodyJSON = new JSONObject(requestBody);
+        String reqUsername = requestBodyJSON.getString("username");
+        String reqPassword = requestBodyJSON.getString("password");
 
         TaiKhoan dbAccount = taiKhoanRepository.findByUser(reqUsername);
         if (dbAccount != null && dbAccount.getHashkey().equals(reqPassword)) {
