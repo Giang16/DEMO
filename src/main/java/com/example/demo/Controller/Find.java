@@ -55,4 +55,9 @@ public class Find {
         }
 
     }
+    @GetMapping("/findAllFid")
+    public List<HoGiaDinh> findAllFid() {
+        List<HoGiaDinh> response = hoGiaDinhRepository.findAll();
+        return response;
+    }
 }
