@@ -39,7 +39,7 @@ public class Manager {
         Integer fid = requestObject.getInt("f_id");
 
         //Kiểm tra nhân khẩu tồn tại trong table NhanKhau
-        if (nhanKhauRepository.findByCccd(cccd) == null && nhanKhauRepository.findBySodienthoai(sodienthoai) == null) {
+        if (nhanKhauRepository.findByCccd(cccd) == null) {
             // không tồn tại trong table NhanKhau -> tạo Nhân Khẩu mới
             NhanKhau newNhanKhau = new NhanKhau(hovatendem, ten, gioitinh, ngaysinh, quanhe, cccd, sodienthoai, fid);
 
@@ -47,7 +47,7 @@ public class Manager {
             //-> Nếu tồn tại và quanhe != chuho thì thôi
             //-> Không tồn tại và quanhe == chuho thì tạo một
             HoGiaDinh existingHoGiaDinh = hoGiaDinhRepository.findByFid(fid);
-            if(existingHoGiaDinh != null && !newNhanKhau.getQuanhe().equals("Chu ho"))
+            if(existingHoGiaDinh != null && !newNhanKhau.getQuanhe().equals("Chủ hộ"))
             {
                 //Tồn tại trong table HoGiaDinh
                 //Lưu vào CSDL
@@ -55,7 +55,7 @@ public class Manager {
                 return 1; // Thêm Nhân Khẩu thành công, không phải là chủ hộ
             }
             //Không tồn tại trong table HoGiaDinh và quanhe== "Chuho" -> Cập nhập bản ghi <f_id, cccdchuho> bằng Nhân Khẩu mới tại
-            else if (existingHoGiaDinh == null && newNhanKhau.getQuanhe().equals("Chu ho"))
+            else if (existingHoGiaDinh == null && newNhanKhau.getQuanhe().equals("Chủ hộ"))
             {
                 //-> Nhập thêm thông tin Địa chị
                 JSONObject diachi = requestObject.getJSONObject("DiaChi");
@@ -82,7 +82,7 @@ public class Manager {
                 return 2; //Thêm Nhân Khẩu thành công, là chủ hộ
             }
         }
-        return 0; // Nhân khẩu đã tồn tại hoặc nhân khẩu trùng số điện thoại hoặc
+        return 0; // Nhân khẩu đã tồn tại hoặc
                     /* Mấu thuẫn trong quan hệ (lỗi ở người nhập)
                     VD: tồn tại trong HoGiaDinh nhưng người này lại có quanhe == "Chu ho"
                     hoặc người này có quanhe != "chu ho" nhưng lại đã tồn tại trong HoGiaDinh */
@@ -139,7 +139,7 @@ public class Manager {
 
             //set lại f_id đối tượng chủ hộ muốn tách = newfid và quanhe == "Chu ho" lưu lại vào table NhanKhau
             existingNhanKhau.setFid(newfid);
-            existingNhanKhau.setQuanhe("Chu ho");
+            existingNhanKhau.setQuanhe("Chủ hộ");
             nhanKhauRepository.save(existingNhanKhau);
 
             DiaChi newDiaChi = new DiaChi(newfid, sonha, duong, phuong, quan, thanhpho);
