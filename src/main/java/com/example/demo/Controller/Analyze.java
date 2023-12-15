@@ -3,6 +3,8 @@ package com.example.demo.Controller;
 import com.example.demo.Function.AgeCalculator;
 import com.example.demo.JPARepository.DiaChiRepository;
 import com.example.demo.JPARepository.NhanKhauRepository;
+import com.example.demo.JPARepository.TamTruRepository;
+import com.example.demo.JPARepository.TamVangRepository;
 import com.example.demo.Model.NhanKhau;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.text.DecimalFormat;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -21,6 +24,12 @@ public class Analyze {
 
     @Autowired
     private DiaChiRepository diaChiRepository;
+
+    @Autowired
+    private TamVangRepository tamVangRepository;
+
+    @Autowired
+    private TamTruRepository tamTruRepository;
 
     @GetMapping("/analyzeSex")
     public String analyzeSex(@RequestParam(name = "duong", required = false) String duong,
@@ -140,6 +149,34 @@ public class Analyze {
         // Format percentage with two decimal places
         DecimalFormat df = new DecimalFormat("#0.00");
         return Double.parseDouble(df.format(percentage));
+    }
+
+    @RequestMapping("/countTamVang")
+    private int countTamVang(@RequestParam(name = "start", required = false) Date start,
+                             @RequestParam(name = "end", required = false) Date end) {
+        if(start != null && end != null) {
+            return tamVangRepository.countFullRange(start,end);
+        } else if (start != null){
+            return tamVangRepository.countStart(start);
+        } else if (end != null) {
+            return tamVangRepository.countEnd(end);
+        } else {
+            return tamVangRepository.countByCurrentTime();
+        }
+    }
+
+    @RequestMapping("/countTamTru")
+    private int countTamTru(@RequestParam(name = "start", required = false) Date start,
+                             @RequestParam(name = "end", required = false) Date end) {
+        if(start != null && end != null) {
+            return tamTruRepository.countFullRange(start,end);
+        } else if (start != null){
+            return tamTruRepository.countStart(start);
+        } else if (end != null) {
+            return tamTruRepository.countEnd(end);
+        } else {
+            return tamTruRepository.countByCurrentTime();
+        }
     }
 
 
