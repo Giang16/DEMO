@@ -87,8 +87,11 @@ public class Manager {
                     VD: tồn tại trong HoGiaDinh nhưng người này lại có quanhe == "Chu ho"
                     hoặc người này có quanhe != "chu ho" nhưng lại đã tồn tại trong HoGiaDinh */
     }
-    //TODO: Nếu thêm Nhân Khẩu là thành viên thì không cần nhập địa chỉ
-    //TODO: Nếu thêm Nhân Khẩu là chủ hộ thì bắt buộc nhập địa chỉ
+    /* Nếu thêm Nhân Khẩu là thành viên thì không cần nhập địa chỉ
+     Nếu thêm Nhân Khẩu là chủ hộ thì bắt buộc nhập địa chỉ */
+    //TODO: CHưa xét đến trường hợp người chưa có cccd và sdt (khi thêm phải xét cccd và sdt khác nhau)
+
+
 
 
     @RequestMapping("/tachhokhau")
