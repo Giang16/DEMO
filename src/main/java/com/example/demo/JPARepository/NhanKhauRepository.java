@@ -14,6 +14,16 @@ public interface NhanKhauRepository extends JpaRepository<NhanKhau, Integer> {
 
     NhanKhau findBySodienthoai(String sodienthoai);
     List<NhanKhau> findAllByFid(Integer fid);
+
+    @Query("SELECT nk FROM NhanKhau nk WHERE cccd = :cccd")
+    NhanKhau findNhanKhauByCccd(@Param("cccd") String cccd);
+
+    @Query("SELECT nk FROM NhanKhau nk WHERE sodienthoai = :sdt")
+    NhanKhau findNhanKhauBySdt(@Param("sdt") String sdt);
+
+    @Query("SELECT nk FROM NhanKhau nk WHERE sodienthoai = :sdt AND cccd = :cccd")
+    NhanKhau findNhanKhauBySdtVaCccd(@Param("sdt") String sdt,@Param("cccd") String cccd);
+
     @Query("SELECT nk FROM NhanKhau nk JOIN DiaChi dc ON nk.fid = dc.addid WHERE dc.duong = :duong")
     List<NhanKhau> findAllByDuong(@Param("duong") String duong);
 

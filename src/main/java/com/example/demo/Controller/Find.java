@@ -71,4 +71,21 @@ public class Find {
         return nhanKhauRepository.findAllByFid(fid);
     }
 
+    @GetMapping("/findNhanKhau")
+    public NhanKhau findNhanKhau(@RequestParam(name = "cccd", required = false) String cccd,
+                                 @RequestParam(name = "sdt", required = false) String sdt) {
+        NhanKhau res = null;
+        if(cccd != null && sdt != null) {
+            res = nhanKhauRepository.findNhanKhauBySdtVaCccd(sdt,cccd);
+        } else if(cccd != null) {
+            res = nhanKhauRepository.findNhanKhauByCccd(cccd);
+        } else if (sdt != null) {
+            res = nhanKhauRepository.findNhanKhauBySdt(sdt);
+        } else {
+            res = null;
+        }
+        return res;
+    }
+
+
 }
