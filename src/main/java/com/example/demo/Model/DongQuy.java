@@ -3,7 +3,7 @@ package com.example.demo.Model;
 import jakarta.persistence.*;
 
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Dong_Quy")
@@ -19,11 +19,11 @@ public class DongQuy {
     private Integer money;
 
     @Column(name = "Date")
-    private Date date;
+    private LocalDateTime date;
 
     public DongQuy(){}
 
-    public DongQuy(Integer quyid, Integer fid, Integer money, Date date){
+    public DongQuy(Integer quyid, Integer fid, Integer money, LocalDateTime date){
         this.quyid = quyid;
         this.fid = fid;
         this.money = money;
@@ -54,11 +54,11 @@ public class DongQuy {
         this.money = money;
     }
 
-    public Date getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 }

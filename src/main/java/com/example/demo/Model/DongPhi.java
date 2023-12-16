@@ -1,10 +1,10 @@
 package com.example.demo.Model;
 
-import com.example.demo.JPARepository.DongPhiRepository;
+
 import jakarta.persistence.*;
 
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Dong_Phi")
@@ -21,13 +21,13 @@ public class DongPhi {
     private Integer money;
 
     @Column(name = "Date")
-    private Date date;
+    private LocalDateTime date;
 
     public DongPhi(){
 
     }
 
-    public DongPhi(Integer phiid, Integer fid, Integer money, Date date){
+    public DongPhi(Integer phiid, Integer fid, Integer money, LocalDateTime date){
         this.phiid = phiid;
         this.fid = fid;
         this.money = money;
@@ -58,11 +58,11 @@ public class DongPhi {
         this.money = money;
     }
 
-    public Date getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 }

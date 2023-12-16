@@ -192,9 +192,8 @@ public class Manager {
         return 1; //Chuyển Nhân khẩu thành công
     }
 
-    @Transactional
     @DeleteMapping("/deletenhankhau")
-    public int deleteNhanKhau(@RequestBody String jsonString){
+    public int deleteNhanKhau(@RequestBody String jsonString) {
         //Nhập thông tin nhân khẩu muốn xoá
         JSONObject requestObject = new JSONObject(jsonString);
 
@@ -204,51 +203,40 @@ public class Manager {
 
         //Kiểm tra nhân khẩu có tồn tại không
         NhanKhau existingNhanKhau = nhanKhauRepository.findByCccdAndFid(cccd, fid);
-        if(existingNhanKhau == null){
+        if (existingNhanKhau == null) {
             return 0; // Không tồn tại Nhân Khẩu
         }
         //Tồn tại
 
-        //Kiểm tra quanhe
-        // + quanhe != chuho thì xoá bth
-        // + quanhe == chuho thì trong HoGiaDinh phải chuyển thành vin khác làm chủ hộ
-
-        if(!existingNhanKhau.getQuanhe().equals("Chu ho")){
+        if (!existingNhanKhau.getQuanhe().equals("Chu ho")) {
             //Quan hệ != Chủ hộ -> Xoa bình thường
             nhanKhauRepository.delete(existingNhanKhau);
             return 1; //Xoá thành công nhân khẩu không phải là chủ hộ
         }
-        //Trường hợp là chủ hộ -> Cần nhập cccd của chủ hộ mới và kiểm tra chủ hộ mới phải = fid
-
-        //Lấy thông tin chủ hộ mới
-        JSONObject chuhomoi = requestObject.getJSONObject("ChuHoMoi");
-        String cccdchuhomoi = chuhomoi.getString("cccd_chuho");
-
-        //Kiểm tra chuhomoi phải tồn tại trong table NhanKhau và chfid = fid
-        NhanKhau existingChuHoMoi = nhanKhauRepository.findByCccdAndFid(cccdchuhomoi, fid);
-        if(existingChuHoMoi == null){
-            return -1; // chuhomoi không tồn tại hoặc không cùng trong gia đình
-        }
-        //Tồn tại -> set lại chủ hộ trong HoGiaDinh với cccd của chủ hộ mới
-        //           set lại quan hệ chuhomoi trong NhanKhau la chu ho
-        HoGiaDinh hogiadinh = hoGiaDinhRepository.findByFid(fid);
-        hogiadinh.setCccdchuho(cccdchuhomoi);
-        hoGiaDinhRepository.save(hogiadinh);
-
-        NhanKhau nhankhaumoi = nhanKhauRepository.findByCccd(cccdchuhomoi);
-        nhankhaumoi.setQuanhe("Chu ho");
-        nhanKhauRepository.save(nhankhaumoi);
-
-        //Xoá nhân khẩu muốn xoá
-        nhanKhauRepository.delete(existingNhanKhau);
-        return 2; //Xoá thành công nhân khẩu là chủ hộ (đã đổi chủ hộ cho thành viên trong gia đình)
+        return -1; // Nhân khẩu muốn xoá là chủ hộ
     }
-    //TODO: Thiếu trường hợp xoá nhân khẩu là chủ hộ mà không có thành viên trong gia đinh
-    //TODO: -> Khi xoá thì xoá cả HoGiaDinh và Diachi của nhân khẩu đó
 
-    //TODO: Khi xoá nhân khẩu là chủ hộ -> set quanhe == chuho cho thành viên
-    //TODO: Nhưng chưa set quanhe các thành viên trong gia đình đối với chủ ho mới
+    @Transactional
+    @DeleteMapping("/deleteHoGiaDinh")
+    public int deleteHoGiaDinh(@RequestBody String jsonString){
+        JSONObject requestObject = new JSONObject(jsonString);
 
+        JSONObject hogiadinh = requestObject.getJSONObject("HoGiaDinhMuonXoa");
+        Integer reqfiid = hogiadinh.getInt("f_id");
+        String reqcccdchuho = hogiadinh.getString("cccd_chuho");
+
+        if(hoGiaDinhRepository.findByFidAndCccdchuho(reqfiid, reqcccdchuho) == null && !nhanKhauRepository.findByCccd(reqcccdchuho).getQuanhe().equals("Chủ hộ")){
+            return 0; //Không tồn tại HoGiaDinh muốn xoá hoặc reqcccg không phải chủ hộ
+        }
+
+        // Xoá các bản ghi liên quan sử dụng các phương thức repository thích hợp
+        diaChiRepository.deleteById(reqfiid);
+        nhanKhauRepository.deleteByFid(reqfiid);
+
+        // Xoá gia đình
+        hoGiaDinhRepository.deleteById(reqfiid);
+        return 1; //Xoá thành công
+    }
 
     @RequestMapping("/modify")
     public int modily(@RequestBody String jsonString){
