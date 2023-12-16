@@ -1,7 +1,7 @@
 package com.example.demo.Model;
 
 import jakarta.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table (name = "Phi")
@@ -12,9 +12,9 @@ public class Phi {
 
     @Column(name = "tenphi") private String tenphi;
 
-    @Column(name = "Date_start") private Date datestart;
+    @Column(name = "Date_start") private LocalDateTime datestart;
 
-    @Column(name = "Date_end") private Date dateend;
+    @Column(name = "Date_end") private LocalDateTime dateend;
 
     @Column(name = "Money") private Integer money; // Số tiền theo đầu người phải đóng
 
@@ -38,19 +38,19 @@ public class Phi {
         this.tenphi = tenphi;
     }
 
-    public Date getDatestart() {
+    public LocalDateTime getDatestart() {
         return datestart;
     }
 
-    public void setDatestart(Date datestart) {
+    public void setDatestart(LocalDateTime datestart) {
         this.datestart = datestart;
     }
 
-    public Date getDateend() {
+    public LocalDateTime getDateend() {
         return dateend;
     }
 
-    public void setDateend(Date dateend) {
+    public void setDateend(LocalDateTime dateend) {
         this.dateend = dateend;
     }
 
@@ -62,7 +62,7 @@ public class Phi {
         this.money = money;
     }
 
-    public Phi(String tenphi, Date datestart, Date dateend, Integer money) {
+    public Phi(String tenphi, LocalDateTime datestart, LocalDateTime dateend, Integer money) {
         this.tenphi = tenphi;
         this.datestart = datestart;
         this.dateend = dateend;
