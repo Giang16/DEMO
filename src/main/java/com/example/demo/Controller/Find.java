@@ -70,12 +70,13 @@ public class Find {
         for(HoGiaDinh each : temp) {
             NhanKhau nhanKhau = nhanKhauRepository.findByCccd(each.getCccdchuho());
             DiaChi diaChi = diaChiRepository.findByAddid(each.getFid());
+            
             JSONObject tmp = new JSONObject();
             tmp.put("tenchuho",nhanKhau.getHovatendem() + " " + nhanKhau.getTen());
             tmp.put("diachi",diaChi.getSonha() + " " + diaChi.getDuong());
+            tmp.put("fid",each.getFid());
 
             ress.add(tmp.toString());
-            System.out.println(tmp.toString());
         }
         return ress.toString();
     }
