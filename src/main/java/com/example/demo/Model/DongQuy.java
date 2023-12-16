@@ -8,11 +8,15 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "Dong_Quy")
 public class DongQuy {
+
     @Id
-    @Column(name = "quy_id", unique = true)
+    @Column(name = "dongquy_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer dongquyid;
+    @Column(name = "quy_id")
     private Integer quyid;
 
-    @Column(name = "f_id", unique = true)
+    @Column(name = "f_id")
     private Integer fid;
 
     @Column(name = "Money")
@@ -60,5 +64,13 @@ public class DongQuy {
 
     public void setDate(LocalDateTime date) {
         this.date = date;
+    }
+
+    public Integer getDongquyid() {
+        return dongquyid;
+    }
+
+    public void setDongquyid(Integer dongquyid) {
+        this.dongquyid = dongquyid;
     }
 }

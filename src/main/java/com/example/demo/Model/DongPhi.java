@@ -11,10 +11,14 @@ import java.time.LocalDateTime;
 public class DongPhi {
 
     @Id
-    @Column(name = "phi_id", unique = true)
+    @Column(name = "dongphi_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer dongphiid;
+
+    @Column(name = "phi_id")
     private Integer phiid;
 
-    @Column(name = "f_id", unique = true)
+    @Column(name = "f_id")
     private Integer fid;
 
     @Column(name = "Money")
@@ -64,5 +68,13 @@ public class DongPhi {
 
     public void setDate(LocalDateTime date) {
         this.date = date;
+    }
+
+    public Integer getDongphiid() {
+        return dongphiid;
+    }
+
+    public void setDongphiid(Integer dongphiid) {
+        this.dongphiid = dongphiid;
     }
 }
