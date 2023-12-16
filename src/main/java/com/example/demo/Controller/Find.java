@@ -6,9 +6,11 @@ import com.example.demo.JPARepository.NhanKhauRepository;
 import com.example.demo.Model.DiaChi;
 import com.example.demo.Model.HoGiaDinh;
 import com.example.demo.Model.NhanKhau;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,8 +64,20 @@ public class Find {
     }
 
     @GetMapping("/findAllFid")
-    public List<Integer> findAllFid() {
-        return hoGiaDinhRepository.findAllFid();
+    public String findAllFid() {
+        List<HoGiaDinh> temp = hoGiaDinhRepository.findAllFid();
+        List<String> ress = new ArrayList<>();
+        for(HoGiaDinh each : temp) {
+            NhanKhau nhanKhau = nhanKhauRepository.findByCccd(each.getCccdchuho());
+            DiaChi diaChi = diaChiRepository.findByAddid(each.getFid());
+            JSONObject tmp = new JSONObject();
+            tmp.put("tenchuho",nhanKhau.getHovatendem() + " " + nhanKhau.getTen());
+            tmp.put("diachi",diaChi.getSonha() + " " + diaChi.getDuong());
+
+            ress.add(tmp.toString());
+            System.out.println(tmp.toString());
+        }
+        return ress.toString();
     }
 
     @GetMapping("/findNhanKhauBy")
@@ -72,17 +86,20 @@ public class Find {
     }
 
     @GetMapping("/findNhanKhau")
-    public NhanKhau findNhanKhau(@RequestParam(name = "cccd", required = false) String cccd,
+    public List<NhanKhau> findNhanKhau(@RequestParam(name = "cccd", required = false) String cccd,
                                  @RequestParam(name = "sdt", required = false) String sdt) {
-        NhanKhau res = null;
+        List<NhanKhau> res = null;
         if(cccd != null && sdt != null) {
-            res = nhanKhauRepository.findNhanKhauBySdtVaCccd(sdt,cccd);
+            res.add(nhanKhauRepository.findNhanKhauBySdtVaCccd(sdt,cccd));
         } else if(cccd != null) {
-            res = nhanKhauRepository.findNhanKhauByCccd(cccd);
+            res.add(nhanKhauRepository.findNhanKhauByCccd(cccd));
         } else if (sdt != null) {
-            res = nhanKhauRepository.findNhanKhauBySdt(sdt);
+            res.add(nhanKhauRepository.findNhanKhauBySdt(sdt));
         } else {
-            res = null;
+            res = nhanKhauRepository.findTop100();
+            if(res.size() > 30) {
+                res = res.subList(0,30);
+            }
         }
         return res;
     }

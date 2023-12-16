@@ -57,4 +57,7 @@ public interface NhanKhauRepository extends JpaRepository<NhanKhau, Integer> {
 
     @Query("SELECT nk.gioitinh FROM NhanKhau nk")
     List<String> findAllGioitinh();
+
+    @Query("SELECT nk FROM NhanKhau nk")
+    List <NhanKhau> findTop100();
 }
