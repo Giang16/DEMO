@@ -2,14 +2,13 @@ package com.example.demo.Controller;
 
 import com.example.demo.JPARepository.PhiRepository;
 import com.example.demo.Model.Phi;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api")
@@ -22,8 +21,8 @@ public class PhiController {
     @RequestMapping("/createPhi")
     public int createPhi(@RequestBody Phi phi){
         String tenphi = phi.getTenphi();
-        Date datestart = phi.getDatestart();
-        Date dateend = phi.getDateend();
+        LocalDateTime datestart = phi.getDatestart();
+        LocalDateTime dateend = phi.getDateend();
         Integer money = phi.getMoney();
 
         Phi existingPhi = phiRepository.findByTenphiAndDatestartAndDateendAndMoney(tenphi, datestart, dateend, money);
@@ -40,8 +39,8 @@ public class PhiController {
     public int updatePhi(@RequestBody Phi phi){
         Integer phiid = phi.getPhiid();
         String tenphi = phi.getTenphi();
-        Date datestart = phi.getDatestart();
-        Date dateend = phi.getDateend();
+        LocalDateTime datestart = phi.getDatestart();
+        LocalDateTime dateend = phi.getDateend();
         Integer money = phi.getMoney();
 
         Phi existingPhi = phiRepository.findByPhiid(phiid);
@@ -68,9 +67,8 @@ public class PhiController {
     @DeleteMapping("/deletePhi")
     public int DeletePhi(@RequestBody Phi phi){
         Integer phiid = phi.getPhiid();
-        String tenphi = phi.getTenphi();
 
-        Phi existingPhi = phiRepository.findByPhiidAndTenphi(phiid, tenphi);
+        Phi existingPhi = phiRepository.findByPhiid(phiid);
         if(existingPhi == null){
             return 0;//Không tồn tại phí
         }

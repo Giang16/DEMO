@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api")
@@ -22,8 +22,8 @@ public class QuyController {
     @RequestMapping("/createQuy")
     public int createQuy(@RequestBody Quy quy){
         String tenquy = quy.getTenquy();
-        Date datestart = quy.getDatestart();
-        Date dateend = quy.getDateend();
+        LocalDateTime datestart = quy.getDatestart();
+        LocalDateTime dateend = quy.getDateend();
         Integer money = quy.getMoney();
 
         Quy existingQuy = quyRepository.findByTenquyAndDatestartAndDateendAndMoney(tenquy, datestart, dateend, money);
@@ -33,15 +33,15 @@ public class QuyController {
 
         Quy newQuy = new Quy(tenquy, datestart, dateend, money);
         quyRepository.save(newQuy);
-        return 1; //Tạo loại phí mới thành công
+        return 1; //Tạo loại quỹ mới thành công
     }
 
     @RequestMapping("/updateQuy")
     public int updateQuy(@RequestBody Quy quy) {
         Integer quyid = quy.getQuyid();
         String tenquy = quy.getTenquy();
-        Date datestart = quy.getDatestart();
-        Date dateend = quy.getDateend();
+        LocalDateTime datestart = quy.getDatestart();
+        LocalDateTime dateend = quy.getDateend();
         Integer money = quy.getMoney();
 
         Quy existingQuy = quyRepository.findByQuyid(quyid);
@@ -71,7 +71,7 @@ public class QuyController {
         Integer quyid = quy.getQuyid();
         String tenquy = quy.getTenquy();
 
-        Quy existingQuy = quyRepository.findByQuyidAndTenquy(quyid, tenquy);
+        Quy existingQuy = quyRepository.findByQuyid(quyid);
         if(existingQuy == null){
             return 0;//Không tồn tại phí
         }

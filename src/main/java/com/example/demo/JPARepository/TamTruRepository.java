@@ -24,4 +24,5 @@ public interface TamTruRepository extends JpaRepository<TamTru, String> {
     int countFullRange(@Param("start") Date start, @Param("end") Date end);
     //Số người tạm trú toàn thời gian trong khoảng ngày start đến ngày end
 
+    TamTru findByCccd(String cccd);
 }

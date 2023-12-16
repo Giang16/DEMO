@@ -22,4 +22,5 @@ public interface TamVangRepository extends JpaRepository<TamVang, String> {
     int countFullRange(@Param("start") Date start, @Param("end") Date end);
 
 
+    TamVang findByCccd(String cccd);
 }
