@@ -1,14 +1,18 @@
 package com.example.demo.Controller;
 
+import com.example.demo.JPARepository.DongPhiRepository;
+import com.example.demo.JPARepository.HoGiaDinhRepository;
 import com.example.demo.JPARepository.PhiRepository;
+import com.example.demo.Model.DongPhi;
+import com.example.demo.Model.HoGiaDinh;
 import com.example.demo.Model.Phi;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -16,6 +20,12 @@ public class PhiController {
 
     @Autowired
     private PhiRepository phiRepository;
+
+    @Autowired
+    private DongPhiRepository dongPhiRepository;
+
+    @Autowired
+    private HoGiaDinhRepository hoGiaDinhRepository;
 
     //Tạo loại phí
     @RequestMapping("/createPhi")
@@ -76,4 +86,49 @@ public class PhiController {
         phiRepository.delete(existingPhi);
         return 1; //Xoá thành công
     }
+
+
+    //trả về list các loại phí đã đóng theo fid
+//    @GetMapping("/getPhis")
+//    public List<Phi> getPhi() {
+//        List<DongPhi> dongPhis = dongPhiRepository.findByFid(fid);
+//        List<Phi> phis = new ArrayList<>(); // Khởi tạo danh sách trước khi sử dụng
+//        if (dongPhis != null) {
+//            for (DongPhi n : dongPhis) {
+//                Phi phi = phiRepository.findByPhiid(n.getPhiid());
+//                if (phi != null) {
+//                    phis.add(phi);
+//                }
+//                // Có thể xử lý trường hợp nếu phiid không tìm thấy trong phiRepository.
+//            }
+//        }
+//        return phis;
+//    }
+
+    @GetMapping("/AllPhi")
+    public List<Phi> getPhis(){
+        return phiRepository.findAll();
+    }
+
+    //Trả về các hộ gia đình theo loại phí (phiid)
+    @GetMapping("/ListFidPaidByPhiid")
+    public List<HoGiaDinh> getHoGiaDinh(@RequestParam(name = "phiid", required = false) Integer phiid) {
+        if (phiid == null) {
+            return Collections.emptyList(); // hoặc return new ArrayList<>();
+        }
+
+        List<DongPhi> dongPhis = dongPhiRepository.findByPhiid(phiid);
+        List<HoGiaDinh> hoGiaDinhs = new ArrayList<>();
+
+        if (dongPhis != null) {
+            for (DongPhi n : dongPhis) {
+                HoGiaDinh newHoGiaDinh = hoGiaDinhRepository.findByFid(n.getFid());
+                if (newHoGiaDinh != null) {
+                    hoGiaDinhs.add(newHoGiaDinh);
+                }
+            }
+        }
+        return hoGiaDinhs;
+    }
+
 }

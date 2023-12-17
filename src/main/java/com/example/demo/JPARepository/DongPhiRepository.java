@@ -10,4 +10,8 @@ public interface DongPhiRepository extends JpaRepository<DongPhi, Integer> {
     DongPhi findByFidAndPhiid(Integer fid, Integer phiid);
     List<DongPhi>  findByDateBetween(LocalDateTime startdate, LocalDateTime enddate);
 
+    List<DongPhi> findByFid(Integer fid);
+
+    List<DongPhi> findByPhiid(Integer phiid);
+
 }

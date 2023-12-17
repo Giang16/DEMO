@@ -11,6 +11,7 @@ public interface HoGiaDinhRepository extends JpaRepository<HoGiaDinh, Integer> {
     HoGiaDinh findByFid(Integer fid);
     HoGiaDinh findByFidAndCccdchuho(Integer fid, String cccdchuho);
     List<HoGiaDinh> findAll();
+
     @Query("SELECT h FROM HoGiaDinh h")
     List<HoGiaDinh> findAllFid();
 }
