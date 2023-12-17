@@ -26,6 +26,18 @@ public class Find {
     @Autowired
     NhanKhauRepository nhanKhauRepository;
 
+    public class Response {
+        public Integer magiadinh;
+        public String tenchuho;
+        public String diachi;
+
+        public Response(Integer magiadinh, String tenchuho, String diachi) {
+            this.diachi = diachi;
+            this.magiadinh = magiadinh;
+            this.tenchuho = tenchuho;
+        }
+    }
+
     @GetMapping("/findAllBy")
     public List<Integer> findAllBy(
             @RequestParam(name = "duong", required = false) String duong,
@@ -64,21 +76,19 @@ public class Find {
     }
 
     @GetMapping("/findAllFid")
-    public String findAllFid() {
+    public List<Response> findAllFid() {
         List<HoGiaDinh> temp = hoGiaDinhRepository.findAllFid();
-        List<String> ress = new ArrayList<>();
-        for(HoGiaDinh each : temp) {
+        List<Response> ress = new ArrayList<>();
+
+        for (HoGiaDinh each : temp) {
             NhanKhau nhanKhau = nhanKhauRepository.findByCccd(each.getCccdchuho());
             DiaChi diaChi = diaChiRepository.findByAddid(each.getFid());
-            
-            JSONObject tmp = new JSONObject();
-            tmp.put("tenchuho",nhanKhau.getHovatendem() + " " + nhanKhau.getTen());
-            tmp.put("diachi",diaChi.getSonha() + " " + diaChi.getDuong());
-            tmp.put("fid",each.getFid());
 
-            ress.add(tmp.toString());
+            Response response = new Response(each.getFid(),nhanKhau.getHovatendem() + " " + nhanKhau.getTen(),diaChi.getSonha() + " " + diaChi.getDuong());
+            ress.add(response);
         }
-        return ress.toString();
+
+        return ress;
     }
 
     @GetMapping("/findNhanKhauBy")

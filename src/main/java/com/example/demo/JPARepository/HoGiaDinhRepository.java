@@ -14,4 +14,7 @@ public interface HoGiaDinhRepository extends JpaRepository<HoGiaDinh, Integer> {
 
     @Query("SELECT h FROM HoGiaDinh h")
     List<HoGiaDinh> findAllFid();
+
+    @Query("SELECT COUNT(fid) FROM HoGiaDinh")
+    Integer countHoGiaDinh();
 }
