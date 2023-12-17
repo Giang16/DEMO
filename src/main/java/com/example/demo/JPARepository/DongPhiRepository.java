@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface DongPhiRepository extends JpaRepository<DongPhi, Integer> {
-    DongPhi findByFidAndPhiid(Integer fid, Integer phiid);
+    @Query("SELECT dp FROM DongPhi dp WHERE fid = :fid AND phiid = :phiid")
+    DongPhi findByFidAndPhiid(@Param("fid") Integer fid, @Param("phiid") Integer phiid);
     List<DongPhi>  findByDateBetween(LocalDateTime startdate, LocalDateTime enddate);
 
     @Query("SELECT COUNT(fid) FROM DongPhi WHERE phiid = :phiid")
