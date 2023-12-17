@@ -87,48 +87,9 @@ public class PhiController {
         return 1; //Xoá thành công
     }
 
-
-    //trả về list các loại phí đã đóng theo fid
-//    @GetMapping("/getPhis")
-//    public List<Phi> getPhi() {
-//        List<DongPhi> dongPhis = dongPhiRepository.findByFid(fid);
-//        List<Phi> phis = new ArrayList<>(); // Khởi tạo danh sách trước khi sử dụng
-//        if (dongPhis != null) {
-//            for (DongPhi n : dongPhis) {
-//                Phi phi = phiRepository.findByPhiid(n.getPhiid());
-//                if (phi != null) {
-//                    phis.add(phi);
-//                }
-//                // Có thể xử lý trường hợp nếu phiid không tìm thấy trong phiRepository.
-//            }
-//        }
-//        return phis;
-//    }
-
     @GetMapping("/AllPhi")
     public List<Phi> getPhis(){
         return phiRepository.findAll();
-    }
-
-    //Trả về các hộ gia đình theo loại phí (phiid)
-    @GetMapping("/ListFidPaidByPhiid")
-    public List<HoGiaDinh> getHoGiaDinh(@RequestParam(name = "phiid", required = false) Integer phiid) {
-        if (phiid == null) {
-            return Collections.emptyList(); // hoặc return new ArrayList<>();
-        }
-
-        List<DongPhi> dongPhis = dongPhiRepository.findByPhiid(phiid);
-        List<HoGiaDinh> hoGiaDinhs = new ArrayList<>();
-
-        if (dongPhis != null) {
-            for (DongPhi n : dongPhis) {
-                HoGiaDinh newHoGiaDinh = hoGiaDinhRepository.findByFid(n.getFid());
-                if (newHoGiaDinh != null) {
-                    hoGiaDinhs.add(newHoGiaDinh);
-                }
-            }
-        }
-        return hoGiaDinhs;
     }
 
 }
