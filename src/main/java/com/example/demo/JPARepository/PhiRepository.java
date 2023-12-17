@@ -7,7 +7,7 @@ import org.springframework.data.relational.core.sql.In;
 import java.time.LocalDateTime;
 
 public interface PhiRepository extends JpaRepository<Phi, Integer> {
-    Phi findByTenphiAndDatestartAndDateendAndMoney(String tenphi, LocalDateTime datestart, LocalDateTime dateend, Integer money);
+    Phi findByTenphiAndDateendAndMoney(String tenphi, LocalDateTime dateend, Integer money);
     Phi findByPhiid(Integer phiid);
     Phi findByPhiidAndTenphi(Integer phiid, String tenphi);
 }
