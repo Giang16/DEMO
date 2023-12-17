@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 
 public interface PhiRepository extends JpaRepository<Phi, Integer> {
-    Phi findByTenphiAndDatestartAndDateendAndMoney(String tenphi, LocalDateTime datestart, LocalDateTime dateend, Integer money);
+    Phi findByTenphiAndDateendAndMoney(String tenphi, LocalDateTime dateend, Integer money);
     Phi findByPhiid(Integer phiid);
     Phi findByPhiidAndTenphi(Integer phiid, String tenphi);
 }

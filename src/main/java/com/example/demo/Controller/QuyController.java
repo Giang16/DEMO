@@ -1,7 +1,6 @@
 package com.example.demo.Controller;
 
 import com.example.demo.JPARepository.QuyRepository;
-import com.example.demo.Model.Phi;
 import com.example.demo.Model.Quy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,11 +21,12 @@ public class QuyController {
     @RequestMapping("/createQuy")
     public int createQuy(@RequestBody Quy quy){
         String tenquy = quy.getTenquy();
-        LocalDateTime datestart = quy.getDatestart();
         LocalDateTime dateend = quy.getDateend();
         Integer money = quy.getMoney();
 
-        Quy existingQuy = quyRepository.findByTenquyAndDatestartAndDateendAndMoney(tenquy, datestart, dateend, money);
+        LocalDateTime datestart = LocalDateTime.now();
+
+        Quy existingQuy = quyRepository.findByTenquyAndDateendAndMoney(tenquy,dateend, money);
         if(existingQuy != null){
             return 0; // Đã tồn tại loại quỹ
         }
@@ -40,7 +40,6 @@ public class QuyController {
     public int updateQuy(@RequestBody Quy quy) {
         Integer quyid = quy.getQuyid();
         String tenquy = quy.getTenquy();
-        LocalDateTime datestart = quy.getDatestart();
         LocalDateTime dateend = quy.getDateend();
         Integer money = quy.getMoney();
 
@@ -51,14 +50,13 @@ public class QuyController {
         }
 
         // Kiểm tra xem thông tin chỉnh sửa có trùng với thông tin của loại quỹ khác không
-        Quy duplicateQuy = quyRepository.findByTenquyAndDatestartAndDateendAndMoney(tenquy, datestart, dateend, money);
+        Quy duplicateQuy = quyRepository.findByTenquyAndDateendAndMoney(tenquy, dateend, money);
         if (duplicateQuy != null && !duplicateQuy.getQuyid().equals(quyid)) {
             return 0; // Thông tin chỉnh sửa đã trùng với một loại quỹ khác
         }
 
         // Cập nhật thông tin loại quỹ
         existingQuy.setTenquy(tenquy);
-        existingQuy.setDatestart(datestart);
         existingQuy.setDateend(dateend);
         existingQuy.setMoney(money);
 
