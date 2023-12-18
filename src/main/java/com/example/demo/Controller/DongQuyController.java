@@ -71,26 +71,33 @@ public class DongQuyController {
     }
 
     @GetMapping("/findDongQuyByQuyId")
-    public List<String> findDongQuyByQuyId(
+    public List<Response> findDongQuyByQuyId(
             @RequestParam(name = "quyid") Integer quyid,
             @RequestParam(name = "orderBy",required = false) String orderBy,
             @RequestParam(name = "order", required = false) String order) {
+        List<String> res = new ArrayList<>();
+        List<Response> respone = new ArrayList<>();
         if(orderBy.equals("name")) {
             if(order.equals("ASC")) {
-                return dongQuyRepository.findHoGiaDinhDaDongQuyOrderByNameASC(quyid);
+                res = dongQuyRepository.findHoGiaDinhDaDongQuyOrderByNameASC(quyid);
             } else if (order.equals("DESC")) {
-                return dongQuyRepository.findHoGiaDinhDaDongQuyOrderByNameDESC(quyid);
+                res = dongQuyRepository.findHoGiaDinhDaDongQuyOrderByNameDESC(quyid);
             }
         } else if(orderBy.equals("money")) {
             if(order.equals("ASC")) {
-                return dongQuyRepository.findHoGiaDinhDaDongQuyOrderByMoneyASC(quyid);
+                res = dongQuyRepository.findHoGiaDinhDaDongQuyOrderByMoneyASC(quyid);
             } else if (order.equals("DESC")) {
-                return dongQuyRepository.findHoGiaDinhDaDongQuyOrderByMoneyDESC(quyid);
+                res = dongQuyRepository.findHoGiaDinhDaDongQuyOrderByMoneyDESC(quyid);
             }
         } else {
-            return dongQuyRepository.findHoGiaDinhDaDongQuyOrderByNameASC(quyid);
+            res = dongQuyRepository.findHoGiaDinhDaDongQuyOrderByNameASC(quyid);
         }
-        return null;
+        for (String each : res) {
+            JSONObject tmp = new JSONObject(each);
+            Response tempresponse = new Response(tmp.getInt("money"),tmp.getString("hovaten"));
+            respone.add(tempresponse);
+        }
+        return respone;
     }
 
     @GetMapping("/tongTienQuyBy")
