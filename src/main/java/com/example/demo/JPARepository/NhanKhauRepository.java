@@ -61,4 +61,7 @@ public interface NhanKhauRepository extends JpaRepository<NhanKhau, Integer> {
 
     @Query("SELECT nk FROM NhanKhau nk")
     List <NhanKhau> findTop100();
+
+    @Query("SELECT CONCAT(hovatendem,' ',ten) FROM NhanKhau WHERE quanhe = 'chủ hộ' and fid = :fid")
+    String findTenChuHo(@Param("fid")Integer fid);
 }

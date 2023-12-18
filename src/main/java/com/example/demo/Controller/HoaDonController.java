@@ -2,6 +2,7 @@ package com.example.demo.Controller;
 
 import com.example.demo.Function.XuatHoaDon;
 import com.example.demo.JPARepository.DongPhiRepository;
+import com.example.demo.JPARepository.NhanKhauRepository;
 import com.example.demo.JPARepository.PhiRepository;
 import com.example.demo.Model.DongPhi;
 import com.example.demo.Model.Phi;
@@ -29,7 +30,10 @@ public class HoaDonController {
     @Autowired
     private DongPhiRepository dongPhiRepository;
 
-    @GetMapping("/helloworld")
+    @Autowired
+    private NhanKhauRepository nhanKhauRepository;
+
+    @GetMapping("/xuatbienlai")
     public ResponseEntity<byte[]> generateHelloWorldPdf(
             @RequestParam(name = "phiid")Integer phiid,
             @RequestParam(name = "fid")Integer fid
@@ -39,9 +43,11 @@ public class HoaDonController {
         Integer soTien = phi.getMoney();
         DongPhi dongPhi = dongPhiRepository.findByFidAndPhiid(fid,phiid);
         LocalDateTime date = dongPhi.getDate();
+        String tenchuho = nhanKhauRepository.findTenChuHo(fid);
+        System.out.println(tenchuho);
 
         try {
-            return pdfGenerationService.generateHelloWorldPdf(phiid,tenPhi,soTien,fid,date.toString().substring(0,10));
+            return pdfGenerationService.generateHelloWorldPdf(phiid,tenPhi,soTien,fid,date.toString().substring(0,10),tenchuho);
         } catch (IOException | DocumentException e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(null);
