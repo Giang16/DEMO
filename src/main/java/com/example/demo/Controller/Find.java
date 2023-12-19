@@ -75,19 +75,34 @@ public class Find {
         }
     }
 
+//    @GetMapping("/findAllFid")
+//    public List<Response> findAllFid() {
+//        List<HoGiaDinh> temp = hoGiaDinhRepository.findAllFid();
+//        List<Response> ress = new ArrayList<>();
+//
+//        for (HoGiaDinh each : temp) {
+//            Integer fid = each.getFid();
+//            String cccd = each.getCccdchuho();
+//            System.out.println(fid);
+//            NhanKhau nhanKhau = nhanKhauRepository.findByCccd(cccd);
+//            DiaChi diaChi = diaChiRepository.findByAddid(fid);
+//
+//            Response response = new Response(fid,nhanKhau.getHovatendem() + " " + nhanKhau.getTen(),diaChi.getSonha() + " " + diaChi.getDuong());
+//            ress.add(response);
+//        }
+//
+//        return ress;
+//    }
+
     @GetMapping("/findAllFid")
-    public List<Response> findAllFid() {
-        List<HoGiaDinh> temp = hoGiaDinhRepository.findAllFid();
+    public List<Response> Test() {
+        List<String> res = hoGiaDinhRepository.findAllFidNew();
         List<Response> ress = new ArrayList<>();
-
-        for (HoGiaDinh each : temp) {
-            NhanKhau nhanKhau = nhanKhauRepository.findByCccd(each.getCccdchuho());
-            DiaChi diaChi = diaChiRepository.findByAddid(each.getFid());
-
-            Response response = new Response(each.getFid(),nhanKhau.getHovatendem() + " " + nhanKhau.getTen(),diaChi.getSonha() + " " + diaChi.getDuong());
-            ress.add(response);
+        for (String each: res) {
+            JSONObject eachJ = new JSONObject(each);
+            Response eachR = new Response(eachJ.getInt("fid"),eachJ.getString("hovaten"), eachJ.getString("diachi"));
+            ress.add(eachR);
         }
-
         return ress;
     }
 

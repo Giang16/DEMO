@@ -74,20 +74,27 @@ public class DongQuyController {
     public List<Response> findDongQuyByQuyId(
             @RequestParam(name = "quyid") Integer quyid,
             @RequestParam(name = "orderBy",required = false) String orderBy,
+            //xếp theo tên hoặc theo tiền truyền orderBy
             @RequestParam(name = "order", required = false) String order) {
         List<String> res = new ArrayList<>();
-        List<Response> respone = new ArrayList<>();
-        if(orderBy.equals("name")) {
-            if(order.equals("ASC")) {
-                res = dongQuyRepository.findHoGiaDinhDaDongQuyOrderByNameASC(quyid);
-            } else if (order.equals("DESC")) {
-                res = dongQuyRepository.findHoGiaDinhDaDongQuyOrderByNameDESC(quyid);
-            }
-        } else if(orderBy.equals("money")) {
-            if(order.equals("ASC")) {
-                res = dongQuyRepository.findHoGiaDinhDaDongQuyOrderByMoneyASC(quyid);
-            } else if (order.equals("DESC")) {
-                res = dongQuyRepository.findHoGiaDinhDaDongQuyOrderByMoneyDESC(quyid);
+        List<Response> response = new ArrayList<>();
+        if(orderBy != null) {
+            if(order != null) {
+                if(orderBy.equals("money") && order.equals("DESC")) {
+                    res = dongQuyRepository.findHoGiaDinhDaDongQuyOrderByMoneyDESC(quyid);
+                } else if (orderBy.equals("name") && order.equals("DESC")) {
+                    res = dongQuyRepository.findHoGiaDinhDaDongQuyOrderByNameDESC(quyid);
+                } else if (orderBy.equals("money")) {
+                    res = dongQuyRepository.findHoGiaDinhDaDongQuyOrderByMoneyASC(quyid);
+                } else if (orderBy.equals("name")) {
+                    res = dongQuyRepository.findHoGiaDinhDaDongQuyOrderByNameASC(quyid);
+                }
+            } else {
+                if (orderBy.equals("name")) {
+                    res = dongQuyRepository.findHoGiaDinhDaDongQuyOrderByNameASC(quyid);
+                } else if (orderBy.equals("money")) {
+                    res = dongQuyRepository.findHoGiaDinhDaDongQuyOrderByMoneyASC(quyid);
+                }
             }
         } else {
             res = dongQuyRepository.findHoGiaDinhDaDongQuyOrderByNameASC(quyid);
@@ -95,9 +102,9 @@ public class DongQuyController {
         for (String each : res) {
             JSONObject tmp = new JSONObject(each);
             Response tempresponse = new Response(tmp.getInt("money"),tmp.getString("hovaten"));
-            respone.add(tempresponse);
+            response.add(tempresponse);
         }
-        return respone;
+        return response;
     }
 
     @GetMapping("/tongTienQuyBy")

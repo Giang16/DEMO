@@ -16,6 +16,6 @@ public interface DiaChiRepository extends JpaRepository<DiaChi, Integer > {
     List<DiaChi> findAllByQuan(String quan);
     List<DiaChi> findAllByThanhpho(String thanhpho);
 
-
-    DiaChi findByAddid(Integer addId);
+    @Query("SELECT dc FROM DiaChi dc WHERE dc.addid = :addid")
+    DiaChi findByAddid(@Param("addid") Integer addid);
 }

@@ -17,4 +17,11 @@ public interface HoGiaDinhRepository extends JpaRepository<HoGiaDinh, Integer> {
 
     @Query("SELECT COUNT(fid) FROM HoGiaDinh")
     Integer countHoGiaDinh();
+
+//    @Query("SELECT CONCAT('{\"fid\":','\"',hgd.fid,'\"',',','\"hovaten\":','\"',CONCAT(nk.hovatendem,' ',nk.ten),'\"',',','\"',\"diachi\",'\":','\"',CONCAT(dc.sonha,' ', dc.duong),'\"}')" +
+//            "FROM HoGiaDinh hgd" +
+//            "JOIN NhanKhau nk ON hgd.cccdchuho = nk.cccd" +
+//            "JOIN DiaChi dc ON hgd.fid = dc.addid")
+    @Query("SELECT CONCAT('{\"fid\":',hgd.fid,',','\"hovaten\":','\"',CONCAT(nk.hovatendem,' ',nk.ten),'\"',',','\"diachi\":','\"',CONCAT(dc.sonha,' ',dc.duong),'\"}') FROM HoGiaDinh hgd JOIN NhanKhau nk ON hgd.cccdchuho = nk.cccd JOIN DiaChi dc ON hgd.fid = dc.addid")
+    List<String> findAllFidNew();
 }
