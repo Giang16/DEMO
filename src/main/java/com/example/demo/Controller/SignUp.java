@@ -1,7 +1,8 @@
 package com.example.demo.Controller;
 
-import com.example.demo.JPARepository.AccountRepository;
-import com.example.demo.Model.Account;
+import com.example.demo.JPARepository.TaiKhoanRepository;
+import com.example.demo.Model.TaiKhoan;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,24 +13,42 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class SignUp {
     @Autowired
-    private AccountRepository accountRepository;
-
+    private TaiKhoanRepository taiKhoanRepository;
     @PostMapping("/signup")
-    public int signUp(@RequestBody Account account) {
-        String username = account.getUsername();
-        String password = account.getPassword();
-        String cccd = account.getCccd();
+    public String signUp(@RequestBody TaiKhoan taikhoan) {
+        JSONObject response = new JSONObject();
+
+        //Lấy thông tin đăng kí từ user
+        String reqUsername = taikhoan.getUser();
+        String reqPassword = taikhoan.getHashkey();
+
+        Integer reqPermission = taikhoan.getLvadmin();
 
 
-        if (accountRepository.findByUsername(username) != null || accountRepository.findByCccd(cccd) != null) {
-            return 0;
+        if (taiKhoanRepository.findByUser(reqUsername) != null ) {
+            response.put("code","SIGNUP003");
+            return response.toString();
+            // Đã tồn tại username hoặc cccd (Đăng ký không thành công)
         }
+        //TODO: Tạo code ở API này cho giống tài liệu cũ, giảm rework cho team FE.
+        //Tạo tài khoản mới
+        TaiKhoan newAccount = new TaiKhoan();
+        newAccount.setUser(reqUsername);
+        newAccount.setHashkey(reqPassword);
+        newAccount.setLvadmin(reqPermission);
 
-        Account newAccount = new Account();
-        newAccount.setUsername(username);
-        newAccount.setPassword(password);
-        newAccount.setCccd(cccd);
-        accountRepository.save(newAccount);
-        return 1;
+        taiKhoanRepository.save(newAccount);
+
+        if(reqPermission.equals(0)) {
+            response.put("code","SIGNUP000");
+            //Đăng ký là Tổ Trưởng
+        } else if (reqPermission.equals(1)) {
+            response.put("code","SIGNUP001");
+            //Đăng ký là Tổ Phó
+        } else {
+            response.put("code","SIGNUP002");
+            //Là Ban quản lý
+        }
+        return response.toString();
     }
 }

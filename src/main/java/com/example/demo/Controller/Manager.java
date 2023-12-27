@@ -1,17 +1,18 @@
 package com.example.demo.Controller;
 
-import com.example.demo.JPARepository.HoKhauRepository;
+import com.example.demo.JPARepository.DiaChiRepository;
+import com.example.demo.JPARepository.HoGiaDinhRepository;
 import com.example.demo.JPARepository.NhanKhauRepository;
-import com.example.demo.Model.HoKhau;
+import com.example.demo.Model.DiaChi;
+import com.example.demo.Model.HoGiaDinh;
 import com.example.demo.Model.NhanKhau;
+import jakarta.transaction.Transactional;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -20,143 +21,260 @@ public class Manager {
     private NhanKhauRepository nhanKhauRepository;
 
     @Autowired
-    private HoKhauRepository hoKhauRepository;
+    private HoGiaDinhRepository hoGiaDinhRepository;
+
+    @Autowired
+    private DiaChiRepository diaChiRepository;
 
     @RequestMapping("/addnhankhau")
-    public int addNhanKhau(@RequestBody NhanKhau nhankhau){
-        String cccd = nhankhau.getCccd();
-        String numberphone = nhankhau.getPhonenumber();
-        String name = nhankhau.getName();
-        String sex = nhankhau.getSex();
-        Integer mahokhau = nhankhau.getMahokhau();
+    public int addNhanKhau(@RequestBody String jsonString) {
+        JSONObject requestObject = new JSONObject(jsonString);
+        String hovatendem = requestObject.getString("hovatendem");
+        String ten = requestObject.getString("ten");
+        String gioitinh = requestObject.getString("gioitinh");
+        String ngaysinh = requestObject.getString("ngaysinh");
+        String quanhe = requestObject.getString("quanhe");
+        String cccd = requestObject.getString("cccd");
+        String sodienthoai = requestObject.getString("sodienthoai");
+        Integer fid = requestObject.getInt("f_id");
 
-        //Kiểm tra cccd v sđt trong CSDL nếu không trừng thì thêm vào CSDL
-        if (nhanKhauRepository.findByCccd(cccd) == null && nhanKhauRepository.findByName(name) == null) {
-            // Tạo một đối tượng mới NhanKhau để lưu vào CSDL
-            NhanKhau newNhanKhau = new NhanKhau();
-            newNhanKhau.setCccd(cccd);
-            newNhanKhau.setPhonenumber(numberphone);
-            newNhanKhau.setName(name);
-            newNhanKhau.setSex(sex);
-            newNhanKhau.setMahokhau(mahokhau);
+        //Kiểm tra nhân khẩu tồn tại trong table NhanKhau
+        if (nhanKhauRepository.findByCccd(cccd) == null) {
+            // không tồn tại trong table NhanKhau -> tạo Nhân Khẩu mới
+            NhanKhau newNhanKhau = new NhanKhau(hovatendem, ten, gioitinh, ngaysinh, quanhe, cccd, sodienthoai, fid);
 
-            //Lưu vào CSDL
-            nhanKhauRepository.save(newNhanKhau);
-            return 1;
+            //Kiểm tra f_id có tồn tại trong table HoGiaDinh
+            //-> Nếu tồn tại và quanhe != chuho thì thôi
+            //-> Không tồn tại và quanhe == chuho thì tạo một
+            HoGiaDinh existingHoGiaDinh = hoGiaDinhRepository.findByFid(fid);
+            if(existingHoGiaDinh != null && !newNhanKhau.getQuanhe().equals("Chủ hộ"))
+            {
+                //Tồn tại trong table HoGiaDinh
+                //Lưu vào CSDL
+                nhanKhauRepository.save(newNhanKhau);
+                return 1; // Thêm Nhân Khẩu thành công, không phải là chủ hộ
+            }
+            //Không tồn tại trong table HoGiaDinh và quanhe== "Chuho" -> Cập nhập bản ghi <f_id, cccdchuho> bằng Nhân Khẩu mới tại
+            else if (existingHoGiaDinh == null && newNhanKhau.getQuanhe().equals("Chủ hộ"))
+            {
+                //-> Nhập thêm thông tin Địa chị
+                JSONObject diachi = requestObject.getJSONObject("DiaChi");
+                String sonha = diachi.getString("sonha");
+                String duong = diachi.getString("duong");
+                String phuong = diachi.getString("phuong");
+                String quan = diachi.getString("quan");
+                String thanhpho = diachi.getString("thanhPho");
+
+                //Kiểm tra địa chỉ có bị trùng trong table DiaChi
+                DiaChi existingDiaChi = diaChiRepository.findBySonhaAndDuongAndPhuongAndQuanAndThanhpho(sonha, duong, phuong, quan, thanhpho);
+                if (existingDiaChi != null) {
+                    return -1; // Trùng địa chỉ trong table DiaChi (nhân khẩu là chủ hộ)
+                }
+                //Lưu vào CSDL
+                nhanKhauRepository.save(newNhanKhau);
+
+                DiaChi newDiaChi = new DiaChi(fid, sonha, duong, phuong, quan, thanhpho);
+                diaChiRepository.save(newDiaChi);
+
+                HoGiaDinh newHoGiaDinh = new HoGiaDinh(fid,cccd);
+                hoGiaDinhRepository.save(newHoGiaDinh);
+
+                return 2; //Thêm Nhân Khẩu thành công, là chủ hộ
+            }
         }
-        else{
-            return 0;
-        }
+        return 0; // Nhân khẩu đã tồn tại hoặc
+                    /* Mấu thuẫn trong quan hệ (lỗi ở người nhập)
+                    VD: tồn tại trong HoGiaDinh nhưng người này lại có quanhe == "Chu ho"
+                    hoặc người này có quanhe != "chu ho" nhưng lại đã tồn tại trong HoGiaDinh */
     }
+    /* Nếu thêm Nhân Khẩu là thành viên thì không cần nhập địa chỉ
+     Nếu thêm Nhân Khẩu là chủ hộ thì bắt buộc nhập địa chỉ */
+    //TODO: CHưa xét đến trường hợp người chưa có cccd và sdt (khi thêm phải xét cccd và sdt khác nhau)
 
-    @RequestMapping("/addhokhau")
-    public int addHoKhau(@RequestBody HoKhau hokhau){
-        Integer mahokhau = hokhau.getMahokhau();
-        String chuho = hokhau.getChuho();
-        String diachi = hokhau.getDiachi();
 
-        //Kiểm tra mahokhau không có trong DL thì thêm vào DL
-        if(hoKhauRepository.findByMahokhau(mahokhau) == null){
-            HoKhau newhokhau = new HoKhau();
-            newhokhau.setMahokhau(mahokhau);
-            newhokhau.setChuho(chuho);
-            newhokhau.setDiachi(diachi);
-
-            //thêm vào DL
-            hoKhauRepository.save(newhokhau);
-            return 1;
-        }
-        else{
-            return  0;
-        }
-    }
 
 
     @RequestMapping("/tachhokhau")
-    public int tachHoKhau(@RequestBody String jsonString) {
+    public int tachHoKhau(@RequestBody String jsonString){
         JSONObject requestObject = new JSONObject(jsonString);
 
-        //Lấy thông tin hộ khẩu cũ từ user
-        JSONObject hokhaucu = requestObject.getJSONObject("hokhaucu");
-        Integer mahokhaucu = hokhaucu.getInt("mahokhau");
-        String chuhocu = hokhaucu.getString("chuho");
-        String diachicu = hokhaucu.getString("diachi");
+        //Lấy thông tin hộ gia đình muốn tách từ User
+        JSONObject hogiadinh = requestObject.getJSONObject("HoGiaDinhMuonTach");
+        Integer fid = hogiadinh.getInt("f_id");
+        String cccdchuho = hogiadinh.getString("cccd_chuho");
 
-        //Kiểm tra xem hộ khẩu cũ có tồn tại không
-        HoKhau oldHoKhau = hoKhauRepository.findByMahokhau(mahokhaucu);
-        if(oldHoKhau != null &&
-           oldHoKhau.getChuho().equals(chuhocu) &&
-           oldHoKhau.getDiachi().equals(diachicu)){
-            //Hộ khẩu tồn tại và đúng các thông tin còn lại
-
-            //Lấy thông tin hộ khẩu mới từ user
-            JSONObject hokhaumoi = requestObject.getJSONObject("hokhaumoi");
-            Integer mahokhaumoi = hokhaumoi.getInt("mahokhau");
-            String chuhomoi = hokhaumoi.getString("chuho");
-            String diachimoi = hokhaumoi.getString("diachi");
-
-            //Kiểm tra hộ khẩu mới có tồn tại không
-            HoKhau newHoKhau = hoKhauRepository.findByMahokhau(mahokhaucu);
-            if(newHoKhau == null){
-                //Hộ khẩu mới không tồn tại, thêm vào dtb
-                newHoKhau = new HoKhau(mahokhaumoi, chuhomoi, diachimoi);
-                hoKhauRepository.save(newHoKhau);
-
-                //Lấy thông tin cccd các Nhân Khẩu cần tách trong hộ khẩu cũ từ User
-                JSONObject nhankhau = requestObject.getJSONObject("nhankhau");
-                String cccd = nhankhau.getString("cccd");
-
-                //Kiểm tra nhân khẩu có maHoKhau trùng với maHoKhau của HoKhaucu
-                NhanKhau nhanKhaumoi = nhanKhauRepository.deleteByCccd(cccd);
-                if(nhankhau != null && nhanKhaumoi.getMahokhau() != newHoKhau.getMahokhau()){
-                    return -1;//Không trùng thì trả -1
-                }
-                //Xoá nhân khẩu từ hộ khẩu cữ và thêm vào hộ khẩu mới
-                nhanKhaumoi.setMahokhau(mahokhaumoi);
-                return 1; //Nếu set lại mahokhau thành công vào hokhaumoi trả về 1
-
-            }
-            return -1;//Đã tồn tại mahokhau muốn tạo
-
+        //Kiểm tra hộ gia đình muốn tách tồn tại trong table HoGiaDinh không
+        HoGiaDinh existingHoGiaDinh = hoGiaDinhRepository.findByFidAndCccdchuho(fid, cccdchuho);
+        if(existingHoGiaDinh == null){
+            //Không tồn tại
+            return 0; //Không tồn tạo HoGiaDinh muốn tách
         }
-        return 0;//Hộ khẩu muốn tách không tồn tại
+        //Tồn tại HoGiaDinh muốn tách
+
+        //Nhập thông tin HoGiaDinh mới muốn tạo từ việc tách
+        JSONObject newhogiadinh = requestObject.getJSONObject("HoGiaDinhMoi");
+        Integer newfid = newhogiadinh.getInt("f_id");
+        String newcccdchuho = newhogiadinh.getString("cccd_chuho");
+
+        //Nhập thông tin Diachi của HoGiaDinh mới
+        JSONObject diachi = requestObject.getJSONObject("DiaChi");
+        String sonha = diachi.getString("sonha");
+        String duong = diachi.getString("duong");
+        String phuong = diachi.getString("phuong");
+        String quan = diachi.getString("quan");
+        String thanhpho = diachi.getString("thanhpho");
+
+        //Kiểm tra HoGiaDinh mới tồn tại không và địa chỉ bị trủng không
+        HoGiaDinh newexistingHoGiaDinh = hoGiaDinhRepository.findByFid(newfid);
+        NhanKhau existingNhanKhau = nhanKhauRepository.findByCccd(newcccdchuho);
+        DiaChi existingDiaChi = diaChiRepository.findBySonhaAndDuongAndPhuongAndQuanAndThanhpho(sonha, duong, phuong, quan,thanhpho);
+        if(newexistingHoGiaDinh == null &&
+                existingNhanKhau != null &&
+                existingNhanKhau.getFid().equals(fid) &&
+                existingDiaChi == null){
+            /*Chưa tồn tại HoGiaDinh mới &&
+             tồn tại chủ hộ trong table NhanKhau &&
+             chủ hộ đó có f_id = f_id muốn tách &&
+             không trùng địa chỉ
+             */
+            HoGiaDinh newHoGiaDinh = new HoGiaDinh(newfid, newcccdchuho);
+            hoGiaDinhRepository.save(newHoGiaDinh);
+
+            //set lại f_id đối tượng chủ hộ muốn tách = newfid và quanhe == "Chu ho" lưu lại vào table NhanKhau
+            existingNhanKhau.setFid(newfid);
+            existingNhanKhau.setQuanhe("Chủ hộ");
+            nhanKhauRepository.save(existingNhanKhau);
+
+            DiaChi newDiaChi = new DiaChi(newfid, sonha, duong, phuong, quan, thanhpho);
+            diaChiRepository.save(newDiaChi);
+
+            return 1; //Tách HoGiaDinh thành công
+        }
+        return -1; /* Tồn tại HoGiDinh muốn tách
+                nhưng (đã tồn tại HoGiaDinh mới(trùng f_id) ||
+                      thông tin chủ hộ mới không nằm trong HoGiaDinh cũ ||
+                      địa chủ HoGiaDinh mới bị tùng) */
     }
 
+    @RequestMapping("/chuyennhankhau")
+    public int ChuyenNhanKhau(@RequestBody String jsonString) {
+        JSONObject requestObject = new JSONObject(jsonString);
 
+        //Lấy thông tin Nhân Khẩu từ HoGiaDinh nào muốn chuyển
+        JSONObject nhankhau = requestObject.getJSONObject("NhanKhauMuonChuyen");
+        String cccd = nhankhau.getString("cccd");
+        Integer nkfid = nhankhau.getInt("f_id");
+        // Nhập quan hệ mới đối với chủ hộ mới
+        String quanhe = nhankhau.getString("quanhedoivoichuhomoi");
+
+        //Lấy thông tin HoGiaDinh muốn chuyển đến
+        JSONObject hogiadinh = requestObject.getJSONObject("HoGiaDinhMuonChuyenDen");
+        Integer fid = hogiadinh.getInt("f_id");
+        String cccdchuho = hogiadinh.getString("cccd_chuho");
+
+
+        //Kiểm tra nhân khẩu muốn chuyển có tồn tại trong table NhanKhau không
+        NhanKhau existingNhanKhau = nhanKhauRepository.findByCccdAndFid(cccd, nkfid);
+        if (existingNhanKhau == null) {
+            return 0; //Không tồn tại nhân khẩu muốn chuyển
+        }
+        //Tồn tại nhân khẩu muốn chuyển
+        // -> Thực hiện kiểm tra HoGiaDinh muốn chuyển đến tồn tại không
+        HoGiaDinh existingHoGiaDinh = hoGiaDinhRepository.findByFidAndCccdchuho(fid, cccdchuho);
+        if (existingHoGiaDinh == null && nkfid.equals(fid)) {
+            return -1; // Không tồn tại hộ gia đình muốn chuyển đến hoặc nkfid = fid
+        }
+
+        // Thực hiện chuyển NhanKhau qua HoGiaDinh muốn chuyển đến -> lưu lại
+        existingNhanKhau.setFid(fid);
+        existingNhanKhau.setQuanhe(quanhe);
+        nhanKhauRepository.save(existingNhanKhau);
+        return 1; //Chuyển Nhân khẩu thành công
+    }
 
     @DeleteMapping("/deletenhankhau")
-    public int deleteNhanKhau(@RequestBody NhanKhau nhankhau){
-        String cccd = nhankhau.getCccd();
-        String numberphone = nhankhau.getPhonenumber();
-        String name = nhankhau.getName();
-        String sex = nhankhau.getSex();
+    public int deleteNhanKhau(@RequestBody String jsonString) {
+        //Nhập thông tin nhân khẩu muốn xoá
+        JSONObject requestObject = new JSONObject(jsonString);
 
-        //Kiểm tra nếu đúng thông tin thì xoá trả về 1
-        NhanKhau newNhanKhau = nhanKhauRepository.findByCccd(cccd);
-        if(newNhanKhau != null &&
-           newNhanKhau.getPhonenumber().equals(numberphone) &&
-           newNhanKhau.getName().equals(name) &&
-           newNhanKhau.getSex().equals(sex)){
-            nhanKhauRepository.deleteByCccd(cccd);
-            return 1;
+        JSONObject nhankhau = requestObject.getJSONObject("NhanKhauMuonXoa");
+        Integer fid = nhankhau.getInt("f_id");
+        String cccd = nhankhau.getString("cccd");
+
+        //Kiểm tra nhân khẩu có tồn tại không
+        NhanKhau existingNhanKhau = nhanKhauRepository.findByCccdAndFid(cccd, fid);
+        if (existingNhanKhau == null) {
+            return 0; // Không tồn tại Nhân Khẩu
         }
-        else {
-            return 0;
+        //Tồn tại
+
+        if (!existingNhanKhau.getQuanhe().equals("Chu ho")) {
+            //Quan hệ != Chủ hộ -> Xoa bình thường
+            nhanKhauRepository.delete(existingNhanKhau);
+            return 1; //Xoá thành công nhân khẩu không phải là chủ hộ
         }
+        return -1; // Nhân khẩu muốn xoá là chủ hộ
     }
 
-    @DeleteMapping("/deletehokhau")
-    public int deleteHoKhau(@RequestBody HoKhau hokhau){
-        Integer mahokhau = hokhau.getMahokhau();
-        String chuho = hokhau.getChuho();
-        String diachi = hokhau.getDiachi();
+    @Transactional
+    @DeleteMapping("/deleteHoGiaDinh")
+    public int deleteHoGiaDinh(@RequestBody String jsonString){
+        JSONObject requestObject = new JSONObject(jsonString);
 
-        //Kiểm tra thông tin nếu đúng thì xoá trả về 1
-        HoKhau newHoKhau = hoKhauRepository.findByMahokhau(mahokhau);
-        if(newHoKhau != null && newHoKhau.getChuho().equals(chuho) && newHoKhau.getDiachi().equals(diachi)){
-            hoKhauRepository.deleteByMahokhau(mahokhau);
-            return 1;
+        JSONObject hogiadinh = requestObject.getJSONObject("HoGiaDinhMuonXoa");
+        Integer reqfiid = hogiadinh.getInt("f_id");
+        String reqcccdchuho = hogiadinh.getString("cccd_chuho");
+
+        if(hoGiaDinhRepository.findByFidAndCccdchuho(reqfiid, reqcccdchuho) == null && !nhanKhauRepository.findByCccd(reqcccdchuho).getQuanhe().equals("Chủ hộ")){
+            return 0; //Không tồn tại HoGiaDinh muốn xoá hoặc reqcccg không phải chủ hộ
         }
-        return 0;
+
+        // Xoá các bản ghi liên quan sử dụng các phương thức repository thích hợp
+        diaChiRepository.deleteById(reqfiid);
+        nhanKhauRepository.deleteByFid(reqfiid);
+
+        // Xoá gia đình
+        hoGiaDinhRepository.deleteById(reqfiid);
+        return 1; //Xoá thành công
+    }
+
+    @RequestMapping("/modify")
+    public int modily(@RequestBody String jsonString){
+        JSONObject requestObject = new JSONObject(jsonString);
+
+        //Lấy thông tin nhân khẩu muốn set từ user
+        JSONObject nhankhau = requestObject.getJSONObject("NhanKhau");
+        String cccd = nhankhau.getString("cccd");
+        Integer nkfid = nhankhau.getInt("f_id");
+
+
+        //Kiểm tra cccd có tồn tại không
+        NhanKhau existingNhanKhau = nhanKhauRepository.findByCccdAndFid(cccd, nkfid);
+        if(existingNhanKhau == null ){
+            return 0;//Không tồn tại cccd
+        }
+        //Tồn tại -> Set lại thông tin từ user nhập vào trừ f_id, cccd, quanhe; nếu muốn sửa 3 thuộc tính này thì deletenhankhau sau đó addnhankhau
+        //Khi sửa sdt th phải kiểm tra sdt phải duy nhất
+
+        JSONObject editNhanKhau = requestObject.getJSONObject("ChinhSua");
+        String hovatendem = editNhanKhau.getString("hovatendem");
+        String ten = editNhanKhau.getString("tem");
+        String gioitinh = editNhanKhau.getString("gioitinh");
+        String ngaysinh = editNhanKhau.getString("ngaysinh");
+        String sodienthoai = editNhanKhau.getString("sodienthoai");
+
+
+        //Kiểm tra sodienthoai trùng không
+        NhanKhau NhanKhauSdt = nhanKhauRepository.findBySodienthoai(sodienthoai);
+        if(NhanKhauSdt != null){
+            return -1; // SoDienthoai muốn sửa bị trùng
+        }
+        existingNhanKhau.setHovatendem(hovatendem);
+        existingNhanKhau.setTen(ten);
+        existingNhanKhau.setGioitinh(gioitinh);
+        existingNhanKhau.setNgaysinh(ngaysinh);
+        existingNhanKhau.setSodienthoai(sodienthoai);
+        nhanKhauRepository.save(existingNhanKhau);
+        return 1; // Sửa thông tin thành công
     }
 }

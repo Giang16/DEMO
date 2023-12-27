@@ -1,35 +1,99 @@
 package com.example.demo.Model;
 
 import jakarta.persistence.*;
+import jakarta.transaction.Transactional;
 
 @Entity
 @Table(name = "nhankhau")
 public class NhanKhau {
     @Id
-    @Column(name = "cccd")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "nk_id")
+    private Integer nkid;
+
+    @Column(name = "Hovatendem")
+    private String hovatendem;
+
+    @Column(name = "Ten")
+    private String ten;
+
+    @Column(name = "Gioitinh")
+    private String gioitinh;
+
+    @Column(name = "Ngaysinh")
+    private String ngaysinh;
+
+    @Column(name = "Quanhe")
+    private String quanhe;
+
+    @Column(name = "Cccd")
     private String cccd;
 
-    @Column(name = "phonenumber")
-    private String phonenumber;
+    @Column(name = "Sodienthoai")
+    private String sodienthoai;
 
-    @Column(name = "name")
-    private String name;
 
-    @Column(name = "sex")
-    private String sex;
-
-    @Column(name = "mahokhau")
-    private Integer mahokhau;
+    @Column(name = "f_id")
+    private Integer fid;
 
 
     public NhanKhau() {
     }
 
-    public NhanKhau(String cccd, String phonenumber, String name, String sex) {
+    public NhanKhau(String hovatendem, String ten, String gioitinh, String ngaysinh, String quanhe, String cccd, String sodienthoai, Integer fid){
+        this.hovatendem = hovatendem;
+        this.ten = ten;
+        this.gioitinh = gioitinh;
+        this.ngaysinh = ngaysinh;
+        this.quanhe = quanhe;
         this.cccd = cccd;
-        this.phonenumber = phonenumber;
-        this.name = name;
-        this.sex = sex;
+        this.sodienthoai = sodienthoai;
+        this.fid = fid;
+    }
+
+    public Integer getNkid() {
+        return nkid;
+    }
+    public void setNkid(Integer nkid) {
+        this.nkid = nkid;
+    }
+
+    public String getHovatendem() {
+        return hovatendem;
+    }
+    public void setHovatendem(String hovatendem) {
+        this.hovatendem = hovatendem;
+    }
+
+    public String getTen() {
+        return ten;
+    }
+    public void setTen(String ten) {
+        this.ten = ten;
+    }
+
+    public String getGioitinh() {
+        return gioitinh;
+    }
+
+    public void setGioitinh(String gioitinh) {
+        this.gioitinh = gioitinh;
+    }
+
+    public String getNgaysinh() {
+        return ngaysinh;
+    }
+
+    public void setNgaysinh(String ngaysinh) {
+        this.ngaysinh = ngaysinh;
+    }
+
+    public String getQuanhe() {
+        return quanhe;
+    }
+
+    public void setQuanhe(String quanhe) {
+        this.quanhe = quanhe;
     }
 
     public String getCccd() {
@@ -40,35 +104,19 @@ public class NhanKhau {
         this.cccd = cccd;
     }
 
-    public String getPhonenumber() {
-        return phonenumber;
+    public String getSodienthoai() {
+        return sodienthoai;
     }
 
-    public void setPhonenumber(String phonenumber) {
-        this.phonenumber = phonenumber;
+    public void setSodienthoai(String sodienthoai) {
+        this.sodienthoai = sodienthoai;
     }
 
-    public String getName() {
-        return name;
+    public Integer getFid() {
+        return fid;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getSex() {
-        return sex;
-    }
-
-    public void setSex(String sex) {
-        this.sex = sex;
-    }
-
-    public Integer getMahokhau() {
-        return mahokhau;
-    }
-
-    public void setMahokhau(Integer mahokhau) {
-        this.mahokhau = mahokhau;
+    public void setFid(Integer fid) {
+        this.fid = fid;
     }
 }
